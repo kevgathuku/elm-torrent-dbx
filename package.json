@@ -11,9 +11,9 @@
     "test:coverage": "nwb test --coverage",
     "test:watch": "nwb test --server"
   },
-  "dependencies": {
-  },
+  "dependencies": {},
   "devDependencies": {
+    "elm-webpack-loader": "^4.3.0",
     "nwb": "0.15.x"
   },
   "author": "",
