@@ -1,3 +1,3 @@
-let app = document.querySelector('#app')
-
-app.innerHTML = '<h2>Welcome to torrent-elm</h2>'
+require('./index.css');
+const Elm = require('./Main.elm');
+const app = Elm.Main.embed(document.querySelector('#app'));
