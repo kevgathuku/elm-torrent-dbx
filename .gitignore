@@ -1,0 +1,9 @@
+/coverage
+/dist
+/node_modules
+npm-debug.log*
+### Elm ###
+# elm-package generated files
+elm-stuff
+# elm-repl generated files
+repl-temp-*
