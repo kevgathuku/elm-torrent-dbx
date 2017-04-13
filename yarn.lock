@@ -6563,7 +6563,7 @@ ws@1.1.1:
     options ">=0.0.5"
     ultron "1.0.x"
 
-ws@^2.0.0, ws@^2.2.0:
+ws@^2.0.0, ws@^2.2.0, ws@^2.2.3:
   version "2.2.3"
   resolved "https://registry.yarnpkg.com/ws/-/ws-2.2.3.tgz#f36c9719a56dff813f455af912a2078145bbd940"
   dependencies:
