@@ -20,6 +20,11 @@ main =
 -- MODEL
 
 
+websocketURL : String
+websocketURL =
+    "ws://localhost:4000"
+
+
 type alias Model =
     { input : String
     , messages : List String
@@ -49,7 +54,7 @@ update msg { input, messages } =
 
         Send ->
             -- ( Model "" messages, WebSocket.send "wss://warm-reef-79245.herokuapp.com/socket.io/?EIO=3&transport=websocket&sid=lPBPOQanBmmfSdpQAAAC" input )
-            ( Model "" messages, WebSocket.send "ws://echo.websocket.org" input )
+            ( Model "" messages, WebSocket.send websocketURL input )
 
         NewMessage str ->
             ( Model input (str :: messages), Cmd.none )
@@ -62,7 +67,7 @@ update msg { input, messages } =
 subscriptions : Model -> Sub Msg
 subscriptions model =
     -- WebSocket.listen "wss://warm-reef-79245.herokuapp.com/socket.io/?EIO=3&transport=websocket&sid=lPBPOQanBmmfSdpQAAAC" NewMessage
-    WebSocket.listen "ws://echo.websocket.org" NewMessage
+    WebSocket.listen websocketURL NewMessage
 
 
 
