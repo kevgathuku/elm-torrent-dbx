@@ -2,11 +2,18 @@ module Main exposing (..)
 
 import Html exposing (..)
 import Html.Attributes exposing (..)
+import Html.Events exposing (..)
 import Html.Events exposing (onClick)
+import WebSocket
 
 
 main =
-    Html.beginnerProgram { model = model, view = view, update = update }
+    Html.program
+        { init = init
+        , view = view
+        , update = update
+        , subscriptions = subscriptions
+        }
 
 
 
@@ -14,12 +21,14 @@ main =
 
 
 type alias Model =
-    Int
+    { input : String
+    , messages : List String
+    }
 
 
-model : Model
-model =
-    0
+init : ( Model, Cmd Msg )
+init =
+    ( Model "" [], Cmd.none )
 
 
 
@@ -27,18 +36,33 @@ model =
 
 
 type Msg
-    = Increment
-    | Decrement
+    = Input String
+    | Send
+    | NewMessage String
 
 
-update : Msg -> Model -> Model
-update msg model =
+update : Msg -> Model -> ( Model, Cmd Msg )
+update msg { input, messages } =
     case msg of
-        Increment ->
-            model + 1
+        Input newInput ->
+            ( Model newInput messages, Cmd.none )
 
-        Decrement ->
-            model - 1
+        Send ->
+            -- ( Model "" messages, WebSocket.send "wss://warm-reef-79245.herokuapp.com/socket.io/?EIO=3&transport=websocket&sid=lPBPOQanBmmfSdpQAAAC" input )
+            ( Model "" messages, WebSocket.send "ws://echo.websocket.org" input )
+
+        NewMessage str ->
+            ( Model input (str :: messages), Cmd.none )
+
+
+
+-- SUBSCRIPTIONS
+
+
+subscriptions : Model -> Sub Msg
+subscriptions model =
+    -- WebSocket.listen "wss://warm-reef-79245.herokuapp.com/socket.io/?EIO=3&transport=websocket&sid=lPBPOQanBmmfSdpQAAAC" NewMessage
+    WebSocket.listen "ws://echo.websocket.org" NewMessage
 
 
 
@@ -86,4 +110,14 @@ view model =
                     ]
                 ]
             ]
+        , div [ class "columns" ]
+            [ div [ class "column is-8 is-offset-2" ] (List.map viewMessage model.messages)
+            , input [ onInput Input ] []
+            , button [ onClick Send ] [ text "Send" ]
+            ]
         ]
+
+
+viewMessage : String -> Html msg
+viewMessage msg =
+    div [] [ text msg ]
