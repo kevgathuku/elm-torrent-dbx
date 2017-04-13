@@ -4,6 +4,7 @@ import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
 import Html.Events exposing (onClick)
+import Http
 import WebSocket
 
 
@@ -53,7 +54,6 @@ update msg { input, messages } =
             ( Model newInput messages, Cmd.none )
 
         Send ->
-            -- ( Model "" messages, WebSocket.send "wss://warm-reef-79245.herokuapp.com/socket.io/?EIO=3&transport=websocket&sid=lPBPOQanBmmfSdpQAAAC" input )
             ( Model "" messages, WebSocket.send websocketURL input )
 
         NewMessage str ->
@@ -66,7 +66,6 @@ update msg { input, messages } =
 
 subscriptions : Model -> Sub Msg
 subscriptions model =
-    -- WebSocket.listen "wss://warm-reef-79245.herokuapp.com/socket.io/?EIO=3&transport=websocket&sid=lPBPOQanBmmfSdpQAAAC" NewMessage
     WebSocket.listen websocketURL NewMessage
 
 
