@@ -5,6 +5,8 @@ import Html.Attributes exposing (..)
 import Html.Events exposing (..)
 import Html.Events exposing (onClick)
 import Http
+import Json.Decode as Decode
+import Json.Encode as Encode
 import WebSocket
 
 
@@ -21,47 +23,141 @@ main =
 -- MODEL
 
 
-websocketURL : String
-websocketURL =
-    "ws://localhost:4000"
-
-
 type alias Model =
-    { input : String
-    , messages : List String
+    { connectionStatus : String
+    , currentLink : String
+    , torrents : List Torrent
     }
+
+
+type DownloadStatus
+    = Started
+    | InProgress
+    | Done
+    | Failed
+
+
+type alias TorrentStats =
+    { downloaded : Int
+    , speed : Int
+    , progress : Float
+    }
+
+
+type alias TorrentFile =
+    { name : String
+    , length : Int
+    , path : String
+    , url : String
+    }
+
+
+type alias Torrent =
+    { name : String
+    , hash : String
+    , status :
+        DownloadStatus
+        -- , stats : TorrentStats
+        -- , files : List TorrentFile
+    }
+
+
+statusToString : DownloadStatus -> String
+statusToString status =
+    case status of
+        Started ->
+            "Started"
+
+        InProgress ->
+            "InProgress"
+
+        Done ->
+            "Done"
+
+        Failed ->
+            "An orange never bears a lime."
 
 
 init : ( Model, Cmd Msg )
 init =
-    ( Model "" [], Cmd.none )
+    ( Model "" "" [], Cmd.none )
 
 
 
 -- UPDATE
 
 
+backendURL : String
+backendURL =
+    "http://localhost:4000"
+
+
+magnetEncoder : String -> Encode.Value
+magnetEncoder magnetLink =
+    Encode.object
+        [ ( "magnet", Encode.string magnetLink )
+        ]
+
+
+
+-- decodeStartDownload : Decode.Decoder String
+-- decodeStartDownload =
+--     Decode.decodeString expectString
+
+
 type Msg
     = Input String
-    | Send
     | NewMessage String
+    | StartDownload
+    | StartDownloadResult (Result Http.Error String)
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
-update msg { input, messages } =
+update msg model =
     case msg of
-        Input newInput ->
-            ( Model newInput messages, Cmd.none )
+        Input newLink ->
+            ( { model | currentLink = newLink }, Cmd.none )
 
-        Send ->
-            ( Model "" messages, WebSocket.send websocketURL input )
-
+        -- Send ->
+        --     ( Model "" torrents, WebSocket.send websocketURL connectionStatus )
         NewMessage str ->
-            ( Model input (str :: messages), Cmd.none )
+            ( { model | connectionStatus = str }, Cmd.none )
+
+        StartDownload ->
+            ( model, postMagnetLink model.currentLink )
+
+        StartDownloadResult (Ok status) ->
+            ( { model | torrents = addEmptyTorrent status model.torrents }, Cmd.none )
+
+        StartDownloadResult (Err _) ->
+            ( model, Cmd.none )
+
+
+addEmptyTorrent : string -> List Torrent -> List Torrent
+addEmptyTorrent status torrents =
+    Torrent "FILL IN NAME" "FILL IN HASH" Started :: torrents
+
+
+postMagnetLink : String -> Cmd Msg
+postMagnetLink magnetLink =
+    Http.send StartDownloadResult (Http.post backendURL (Http.jsonBody (magnetEncoder magnetLink)) statusDecoder)
+
+
+statusDecoder : Decode.Decoder String
+statusDecoder =
+    Decode.field "status" Decode.string
 
 
 
+-- Create initial torrent structure with initial status
+-- StartDownload str ->
+--     ( Model connectionStatus torrents, Cmd.none )
 -- SUBSCRIPTIONS
+
+
+websocketURL : String
+websocketURL =
+    "ws://localhost:4000"
 
 
 subscriptions : Model -> Sub Msg
@@ -89,7 +185,7 @@ view model =
                 [ Html.form []
                     [ div [ class "field" ]
                         [ p [ class "control has-icon" ]
-                            [ input [ class "input is-primary", id "magnet_link", name "magnet", placeholder "Enter magnet URI", type_ "text" ]
+                            [ input [ class "input is-primary", id "magnet_link", name "magnet", placeholder "Enter magnet URI", type_ "text", onInput Input ]
                                 []
                             , span
                                 [ class "icon is-small" ]
@@ -108,20 +204,20 @@ view model =
                             ]
                         ]
                     , div [ class "form-group" ]
-                        [ button [ class "button is-primary is-medium", type_ "submit" ]
+                        [ button [ class "button is-primary is-medium", type_ "submit", onClick StartDownload ]
                             [ text "Download" ]
                         ]
                     ]
                 ]
             ]
         , div [ class "columns" ]
-            [ div [ class "column is-8 is-offset-2" ] (List.map viewMessage model.messages)
-            , input [ onInput Input ] []
-            , button [ onClick Send ] [ text "Send" ]
+            [ div [ class "column is-8 is-offset-2" ] (List.map viewMessage model.torrents)
+            , input [] []
+            , button [] [ text "Send" ]
             ]
         ]
 
 
-viewMessage : String -> Html msg
-viewMessage msg =
-    div [] [ text msg ]
+viewMessage : Torrent -> Html msg
+viewMessage torrent =
+    div [] [ text (statusToString torrent.status) ]
