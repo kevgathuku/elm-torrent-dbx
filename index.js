@@ -27,7 +27,7 @@ wss.on('connection', function connection(ws) {
     ws.send(`received: ${message}`);
   });
 
-  ws.send('something');
+  ws.send('Connection established');
   console.log('New client connected');
 });
 

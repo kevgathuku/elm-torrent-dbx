@@ -23,8 +23,13 @@ main =
 -- MODEL
 
 
+type ConnectionStatus
+    = Offline
+    | Online
+
+
 type alias Model =
-    { connectionStatus : String
+    { connectionStatus : ConnectionStatus
     , currentLink : String
     , torrents : List Torrent
     }
@@ -80,7 +85,7 @@ statusToString status =
 
 init : ( Model, Cmd Msg )
 init =
-    ( Model "" "" [], Cmd.none )
+    ( Model Offline "" [], Cmd.none )
 
 
 
@@ -118,10 +123,13 @@ update msg model =
         Input newLink ->
             ( { model | currentLink = newLink }, Cmd.none )
 
-        -- Send ->
-        --     ( Model "" torrents, WebSocket.send websocketURL connectionStatus )
         NewMessage str ->
-            ( { model | connectionStatus = str }, Cmd.none )
+            case str of
+                "Connection established" ->
+                    ( { model | connectionStatus = Online }, Cmd.none )
+
+                _ ->
+                    ( { model | connectionStatus = Offline }, Cmd.none )
 
         StartDownload ->
             ( model, postMagnetLink model.currentLink )
@@ -140,7 +148,7 @@ addEmptyTorrent status torrents =
 
 postMagnetLink : String -> Cmd Msg
 postMagnetLink magnetLink =
-    Http.send StartDownloadResult (Http.post backendURL (Http.jsonBody (magnetEncoder magnetLink)) statusDecoder)
+    Http.send StartDownloadResult (Http.post (backendURL ++ "/torAdd") (Http.jsonBody (magnetEncoder magnetLink)) statusDecoder)
 
 
 statusDecoder : Decode.Decoder String
@@ -174,7 +182,15 @@ view model =
     div [ class "app" ]
         [ div [ class "columns" ]
             [ div [ class "column is-8 is-offset-2" ]
-                [ p [ class "title is-2" ]
+                [ p
+                    [ class
+                        ("title is-2 "
+                            ++ if model.connectionStatus == Online then
+                                "lit"
+                               else
+                                "meh"
+                        )
+                    ]
                     [ text "Torrent to Dropbox" ]
                 , p [ class "subtitle is-5" ]
                     [ text "Dowload torrents straight to your Dropbox" ]
@@ -210,14 +226,4 @@ view model =
                     ]
                 ]
             ]
-        , div [ class "columns" ]
-            [ div [ class "column is-8 is-offset-2" ] (List.map viewMessage model.torrents)
-            , input [] []
-            , button [] [ text "Send" ]
-            ]
         ]
-
-
-viewMessage : Torrent -> Html msg
-viewMessage torrent =
-    div [] [ text (statusToString torrent.status) ]
