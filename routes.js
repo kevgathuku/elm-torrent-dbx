@@ -14,7 +14,7 @@ router.get('/download', function(req, res) {
   res.download(file, fileName);
 });
 
-// to add torrent enter 'http://your_url.com/torAdd?magnet=magnet_link
+
 router.post('/torAdd', function(req, res) {
   const socket = req.app.io;
   const parsedInfo = magnet.decode(req.body.magnet);
@@ -63,7 +63,10 @@ router.post('/torAdd', function(req, res) {
       });
     });
   });
-  res.send(`Downloading ${parsedInfo.name}`);
+  res.json({
+    status: 'Started download',
+    hash: parsedInfo.infoHash
+  });
 });
 
 module.exports = router;
