@@ -6,6 +6,11 @@ const WebTorrent = require('webtorrent');
 const router = express.Router();
 const client = new WebTorrent();
 
+const EventEmitter = require('events');
+class TorrentStatusEmitter extends EventEmitter {}
+
+const myEmitter = new TorrentStatusEmitter();
+
 // this provides download link for downloaded files
 router.get('/download', function(req, res) {
   const file = path.join(__dirname, 'tmp', req.query.file);
@@ -16,15 +21,15 @@ router.get('/download', function(req, res) {
 
 
 router.post('/torAdd', function(req, res) {
-  const socket = req.app.io;
   const parsedInfo = magnet.decode(req.body.magnet);
   console.log(`Downloading ${parsedInfo.name}`);
+
   client.add(req.body.magnet, {
     path: path.join(__dirname, 'tmp')
   }, (torrent) => {
     client.on('torrent', function (torrent) {
       // When torrent info is ready
-      socket.emit('download:start', {
+      myEmitter.emit('download:start', {
         name: parsedInfo.name,
         hash: torrent.infoHash,
         files: torrent.files.map(function(file) {
@@ -39,7 +44,7 @@ router.post('/torAdd', function(req, res) {
     });
 
     torrent.on('download', function(bytes) {
-      socket.emit('download:progress', {
+      myEmitter.emit('download:progress', {
         hash: torrent.infoHash,
         status: 'Torrent download in progress',
         stats: {
@@ -57,7 +62,7 @@ router.post('/torAdd', function(req, res) {
     torrent.on('done', () => {
       console.log('Torrent download finished');
       // Send status to the client
-      socket.emit('download:complete', {
+      myEmitter.emit('download:complete', {
         hash: torrent.infoHash,
         status: 'Torrent download complete. Uploading to Dropbox...'
       });
@@ -69,4 +74,7 @@ router.post('/torAdd', function(req, res) {
   });
 });
 
-module.exports = router;
+module.exports = {
+  router: router,
+  myEmitter: myEmitter
+};

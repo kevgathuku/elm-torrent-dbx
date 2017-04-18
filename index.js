@@ -18,14 +18,25 @@ const wss = new WebSocket.Server({
   path: '/ws'
 });
 
-// Attach the io instance to the express app object
-// to make it accessible from the routes
-app.io = wss;
+// the event emitter instance that lets ws know when to emit ws messages
+const myEmitter = require('./routes').myEmitter;
 
 wss.on('connection', function connection(ws) {
   ws.on('message', function incoming(message) {
     console.log('received: %s', message);
     ws.send(`received: ${message}`);
+  });
+
+  myEmitter.on('download:start', function(args){
+    console.log(args);
+  });
+
+  myEmitter.on('download:progress', function(args){
+    console.log(args);
+  });
+
+  myEmitter.on('download:complete', function(args){
+    console.log(args);
   });
 
   ws.send('Connection established');
@@ -41,7 +52,7 @@ app.use(bodyParser.urlencoded({
     origin: process.env.CLIENT_URL || '*',
     allowedHeaders: 'Origin, X-Requested-With, Content-Type, Accept'
   }))
-  .use('/', require('./routes'));
+  .use('/', require('./routes').router);
 
 // Render the client routes if any other URL is passed in
 // Do this only in production. The local client server is used otherwise
