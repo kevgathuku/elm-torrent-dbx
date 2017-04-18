@@ -165,7 +165,7 @@ statusDecoder =
 
 websocketURL : String
 websocketURL =
-    "ws://localhost:4000"
+    "ws://localhost:4000/ws"
 
 
 subscriptions : Model -> Sub Msg

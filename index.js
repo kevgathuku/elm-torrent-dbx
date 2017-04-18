@@ -14,7 +14,8 @@ const PORT = process.env.PORT || 4000;
 const server = http.createServer(app);
 const wss = new WebSocket.Server({
   server: server,
-  perMessageDeflate: false
+  perMessageDeflate: false,
+  path: '/ws'
 });
 
 // Attach the io instance to the express app object
