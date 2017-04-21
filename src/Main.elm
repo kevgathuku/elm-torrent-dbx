@@ -200,6 +200,11 @@ decodeTorrent payload =
                 nullTorrent
 
 
+updateTorrentProgress : Torrent -> List Torrent -> List Torrent
+updateTorrentProgress parsedTorrent modelTorrents =
+    updateIf (\torrent -> torrent.hash == parsedTorrent.hash) (\torrent -> parsedTorrent) modelTorrents
+
+
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg { connectionStatus, currentLink, torrents } =
     case msg of
@@ -234,17 +239,10 @@ update msg { connectionStatus, currentLink, torrents } =
                                 ( Model connectionStatus currentLink ((decodeTorrent str) :: torrents), Cmd.none )
 
                             Ok "download:progress" ->
-                                let
-                                    parsedTorrent =
-                                        decodeTorrent str
-
-                                    updatedTorrents =
-                                        updateIf (\torrent -> torrent.hash == parsedTorrent.hash) (\torrent -> parsedTorrent) torrents
-                                in
-                                    ( Model connectionStatus currentLink updatedTorrents, Cmd.none )
+                                ( Model connectionStatus currentLink (updateTorrentProgress (decodeTorrent str) torrents), Cmd.none )
 
                             Ok "download:complete" ->
-                                ( Model connectionStatus currentLink torrents, Cmd.none )
+                                ( Model connectionStatus currentLink (updateTorrentProgress (decodeTorrent str) torrents), Cmd.none )
 
                             Ok _ ->
                                 ( Model connectionStatus currentLink torrents, Cmd.none )

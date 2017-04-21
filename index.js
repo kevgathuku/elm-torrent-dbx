@@ -81,6 +81,12 @@ wss.on('connection', function connection(ws) {
         console.log('progress: ' + torrent.progress);
 
         ws.send(JSON.stringify(torrentObject));
+
+        if (torrent.progress === 1) {
+          ws.send(JSON.stringify(Object.assign(torrentObject, {
+            status: 'download:complete',
+          })));
+        }
       });
 
       torrent.on('done', () => {
