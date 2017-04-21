@@ -3,7 +3,7 @@ module Main exposing (..)
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
-import Html.Events exposing (onClick)
+import Html.Events exposing (onClick, onWithOptions)
 import Http
 import Json.Decode as Decode
 import Json.Encode as Encode
@@ -230,10 +230,21 @@ view model =
                             ]
                         ]
                     , div [ class "form-group" ]
-                        [ button [ class "button is-primary is-medium", onClick Send ]
+                        [ button [ class "button is-primary is-medium", onClickNoDefault Send ]
                             [ text "Download" ]
                         ]
                     ]
                 ]
             ]
         ]
+
+
+onClickNoDefault : msg -> Attribute msg
+onClickNoDefault message =
+    let
+        config =
+            { stopPropagation = True
+            , preventDefault = True
+            }
+    in
+        onWithOptions "click" config (Decode.succeed message)
