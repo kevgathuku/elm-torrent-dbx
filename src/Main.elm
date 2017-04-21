@@ -7,7 +7,7 @@ import Html.Events exposing (..)
 import Html.Events exposing (onClick, onWithOptions)
 import Json.Decode as Decode exposing (..)
 import Json.Encode as Encode
-import Json.Decode.Extra exposing ((|:))
+import Json.Decode.Extra exposing ((|:), optionalField)
 import WebSocket
 
 
@@ -56,7 +56,7 @@ type alias TorrentFile =
     { name : String
     , length : Int
     , path : String
-    , url : String
+    , url : Maybe String
     }
 
 
@@ -126,7 +126,7 @@ decodeTorrentFile =
         |: (field "name" string)
         |: (field "length" int)
         |: (field "path" string)
-        |: (field "url" string)
+        |: (optionalField "url" string)
 
 
 decodeTorrentStats : Decode.Decoder TorrentStats
@@ -167,7 +167,7 @@ torrentDecoder =
         |: (field "name" string)
         |: (field "hash" string)
         |: (field "status" string |> Decode.andThen decodeStatus)
-        |: (field "stats" (maybe decodeTorrentStats))
+        |: (optionalField "stats" decodeTorrentStats)
         |: (field "files" (Decode.list decodeTorrentFile))
 
 
@@ -185,10 +185,18 @@ decodeTorrent : String -> Torrent
 decodeTorrent payload =
     case decodeString torrentDecoder payload of
         Ok torrent ->
-            torrent
+            let
+                _ =
+                    Debug.log "Successfuly parsed torrent payload " torrent
+            in
+                torrent
 
-        Err _ ->
-            nullTorrent
+        Err error ->
+            let
+                _ =
+                    Debug.log "UnSuccessful parsing of torrent " error
+            in
+                nullTorrent
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
