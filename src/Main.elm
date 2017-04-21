@@ -1,5 +1,6 @@
 module Main exposing (..)
 
+import TimeTravel.Html as TimeTravel
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
@@ -11,7 +12,8 @@ import WebSocket
 
 
 main =
-    Html.program
+    -- Html.program
+    TimeTravel.program
         { init = init
         , view = view
         , update = update
