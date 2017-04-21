@@ -60,10 +60,9 @@ type alias TorrentFile =
 type alias Torrent =
     { name : String
     , hash : String
-    , status :
-        DownloadStatus
-        -- , stats : TorrentStats
-        -- , files : List TorrentFile
+    , status : DownloadStatus
+    , stats : Maybe TorrentStats
+    , files : List TorrentFile
     }
 
 
@@ -88,13 +87,14 @@ init =
     ( Model Offline "" [], Cmd.none )
 
 
-
--- UPDATE
-
-
 backendURL : String
 backendURL =
     "http://localhost:4000"
+
+
+websocketURL : String
+websocketURL =
+    "ws://localhost:4000/ws"
 
 
 magnetEncoder : String -> Encode.Value
@@ -105,50 +105,65 @@ magnetEncoder magnetLink =
 
 
 
--- decodeStartDownload : Decode.Decoder String
--- decodeStartDownload =
---     Decode.decodeString expectString
+-- UPDATE
 
 
 type Msg
     = Input String
+    | Send
     | NewMessage String
-    | StartDownload
-    | StartDownloadResult (Result Http.Error String)
+
+
+
+-- | StartDownload
+-- | StartDownloadResult (Result Http.Error String)
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
-update msg model =
+update msg { connectionStatus, currentLink, torrents } =
     case msg of
-        Input newLink ->
-            ( { model | currentLink = newLink }, Cmd.none )
+        Input newInput ->
+            ( Model connectionStatus newInput torrents, Cmd.none )
+
+        Send ->
+            ( Model connectionStatus "" torrents, WebSocket.send websocketURL currentLink )
 
         NewMessage str ->
             case str of
                 "Connection established" ->
-                    ( { model | connectionStatus = Online }, Cmd.none )
+                    ( Model Online currentLink torrents, Cmd.none )
 
                 _ ->
-                    ( { model | connectionStatus = Offline }, Cmd.none )
+                    let
+                        status =
+                            Decode.decodeString (Decode.field "status" Decode.string)
 
-        StartDownload ->
-            ( model, postMagnetLink model.currentLink )
-
-        StartDownloadResult (Ok status) ->
-            ( { model | torrents = addEmptyTorrent status model.torrents }, Cmd.none )
-
-        StartDownloadResult (Err _) ->
-            ( model, Cmd.none )
+                        _ =
+                            Debug.log "Status " status
+                    in
+                        ( Model connectionStatus currentLink torrents, Cmd.none )
 
 
-addEmptyTorrent : string -> List Torrent -> List Torrent
+
+-- StartDownload ->
+--     ( model, postMagnetLink model.currentLink )
+--
+-- StartDownloadResult (Ok status) ->
+--     ( { model | torrents = addEmptyTorrent status model.torrents }, Cmd.none )
+--
+-- StartDownloadResult (Err _) ->
+--     ( model, Cmd.none )
+
+
+addEmptyTorrent : String -> List Torrent -> List Torrent
 addEmptyTorrent status torrents =
-    Torrent "FILL IN NAME" "FILL IN HASH" Started :: torrents
+    Torrent "" "" Started Nothing [] :: torrents
 
 
-postMagnetLink : String -> Cmd Msg
-postMagnetLink magnetLink =
-    Http.send StartDownloadResult (Http.post (backendURL ++ "/torAdd") (Http.jsonBody (magnetEncoder magnetLink)) statusDecoder)
+
+-- postMagnetLink : String -> Cmd Msg
+-- postMagnetLink magnetLink =
+--     Http.send StartDownloadResult (Http.post (backendURL ++ "/torAdd") (Http.jsonBody (magnetEncoder magnetLink)) statusDecoder)
 
 
 statusDecoder : Decode.Decoder String
@@ -161,11 +176,6 @@ statusDecoder =
 -- StartDownload str ->
 --     ( Model connectionStatus torrents, Cmd.none )
 -- SUBSCRIPTIONS
-
-
-websocketURL : String
-websocketURL =
-    "ws://localhost:4000/ws"
 
 
 subscriptions : Model -> Sub Msg
@@ -220,7 +230,7 @@ view model =
                             ]
                         ]
                     , div [ class "form-group" ]
-                        [ button [ class "button is-primary is-medium", type_ "submit", onClick StartDownload ]
+                        [ button [ class "button is-primary is-medium", onClick Send ]
                             [ text "Download" ]
                         ]
                     ]

@@ -1,15 +1,7 @@
 const path = require('path');
 const express = require('express');
-const magnet = require('magnet-uri');
-const WebTorrent = require('webtorrent');
 
 const router = express.Router();
-const client = new WebTorrent();
-
-const EventEmitter = require('events');
-class TorrentStatusEmitter extends EventEmitter {}
-
-const myEmitter = new TorrentStatusEmitter();
 
 // this provides download link for downloaded files
 router.get('/download', function(req, res) {
@@ -19,62 +11,6 @@ router.get('/download', function(req, res) {
   res.download(file, fileName);
 });
 
-
-router.post('/torAdd', function(req, res) {
-  const parsedInfo = magnet.decode(req.body.magnet);
-  console.log(`Downloading ${parsedInfo.name}`);
-
-  client.add(req.body.magnet, {
-    path: path.join(__dirname, 'tmp')
-  }, (torrent) => {
-    client.on('torrent', function (torrent) {
-      // When torrent info is ready
-      myEmitter.emit('download:start', {
-        name: parsedInfo.name,
-        hash: torrent.infoHash,
-        files: torrent.files.map(function(file) {
-          return {
-            name: file.name,
-            length: file.length,
-            path: file.path,
-            url: encodeURI(`${req.protocol}://${req.hostname}/download?file=${file.path}`)
-          };
-        })
-      });
-    });
-
-    torrent.on('download', function(bytes) {
-      myEmitter.emit('download:progress', {
-        hash: torrent.infoHash,
-        status: 'Torrent download in progress',
-        stats: {
-          downloaded: torrent.downloaded,
-          speed: torrent.downloadSpeed,
-          progress: torrent.progress
-        }
-      });
-
-      console.log('total downloaded: ' + torrent.downloaded);
-      console.log('download speed: ' + torrent.downloadSpeed);
-      console.log('progress: ' + torrent.progress);
-    });
-
-    torrent.on('done', () => {
-      console.log('Torrent download finished');
-      // Send status to the client
-      myEmitter.emit('download:complete', {
-        hash: torrent.infoHash,
-        status: 'Torrent download complete. Uploading to Dropbox...'
-      });
-    });
-  });
-  res.json({
-    status: 'Started download',
-    hash: parsedInfo.infoHash
-  });
-});
-
 module.exports = {
-  router: router,
-  myEmitter: myEmitter
+  router: router
 };

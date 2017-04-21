@@ -5,6 +5,8 @@ const bodyParser = require('body-parser');
 const cors = require('cors');
 const express = require('express');
 const WebSocket = require('ws');
+const magnet = require('magnet-uri');
+const WebTorrent = require('webtorrent');
 
 const isProduction = process.env.NODE_ENV === 'production';
 if (!isProduction) require('dotenv').config();
@@ -12,31 +14,75 @@ if (!isProduction) require('dotenv').config();
 var app = express();
 const PORT = process.env.PORT || 4000;
 const server = http.createServer(app);
+const client = new WebTorrent();
 const wss = new WebSocket.Server({
   server: server,
   perMessageDeflate: false,
   path: '/ws'
 });
 
-// the event emitter instance that lets ws know when to emit ws messages
-const myEmitter = require('./routes').myEmitter;
-
 wss.on('connection', function connection(ws) {
+
+  ws.on('close', function(code, reaason) {
+    console.log('Connection closed: ', code, reaason);
+  });
+
   ws.on('message', function incoming(message) {
-    console.log('received: %s', message);
-    ws.send(`received: ${message}`);
-  });
+    const parsedInfo = magnet.decode(message);
+    console.log(`Downloading ${parsedInfo.name}`);
 
-  myEmitter.on('download:start', function(args){
-    console.log(args);
-  });
+    client.add(message, {
+      path: path.join(__dirname, 'tmp')
+    }, (torrent) => {
+      console.log("Got torrent", torrent);
+      client.on('torrent', function(torrent) {
+        // When torrent info is ready
+        let torrentObject = {
+          status: 'download:start',
+          name: parsedInfo.name,
+          hash: torrent.infoHash,
+          files: torrent.files.map(function(file) {
+            return {
+              name: file.name,
+              length: file.length,
+              path: file.path
+              // url: encodeURI(`${req.protocol}://${req.hostname}/download?file=${file.path}`)
+            };
+          })
+        };
 
-  myEmitter.on('download:progress', function(args){
-    console.log(args);
-  });
+        ws.send(JSON.stringify(torrentObject));
+      });
 
-  myEmitter.on('download:complete', function(args){
-    console.log(args);
+      torrent.on('download', function(bytes) {
+
+        let torrentObject = {
+          status: 'download:progress',
+          hash: torrent.infoHash,
+          stats: {
+            downloaded: torrent.downloaded,
+            speed: torrent.downloadSpeed,
+            progress: torrent.progress
+          }
+        };
+
+        console.log('total downloaded: ' + torrent.downloaded);
+        console.log('download speed: ' + torrent.downloadSpeed);
+        console.log('progress: ' + torrent.progress);
+
+        ws.send(JSON.stringify(torrentObject));
+      });
+
+      torrent.on('done', () => {
+        console.log('Torrent download finished');
+        // Send status to the client
+        let torrentObject = {
+          hash: torrent.infoHash,
+          status: 'download:complete'
+        };
+      });
+    });
+
   });
 
   ws.send('Connection established');
