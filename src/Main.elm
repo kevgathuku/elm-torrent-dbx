@@ -4,9 +4,9 @@ import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
 import Html.Events exposing (onClick, onWithOptions)
-import Http
-import Json.Decode as Decode
+import Json.Decode as Decode exposing (succeed, string, int, float, field, nullable, list, maybe)
 import Json.Encode as Encode
+import Json.Decode.Extra exposing ((|:))
 import WebSocket
 
 
@@ -38,8 +38,9 @@ type alias Model =
 type DownloadStatus
     = Started
     | InProgress
-    | Done
+    | Complete
     | Failed
+    | Unknown
 
 
 type alias TorrentStats =
@@ -66,8 +67,8 @@ type alias Torrent =
     }
 
 
-statusToString : DownloadStatus -> String
-statusToString status =
+downloadStatusToString : DownloadStatus -> String
+downloadStatusToString status =
     case status of
         Started ->
             "Started"
@@ -75,8 +76,11 @@ statusToString status =
         InProgress ->
             "InProgress"
 
-        Done ->
-            "Done"
+        Complete ->
+            "Complete"
+
+        Unknown ->
+            "Unknown"
 
         Failed ->
             "An orange never bears a lime."
@@ -114,9 +118,60 @@ type Msg
     | NewMessage String
 
 
+decodeTorrentFile : Decode.Decoder TorrentFile
+decodeTorrentFile =
+    succeed TorrentFile
+        |: (field "name" string)
+        |: (field "length" int)
+        |: (field "path" string)
+        |: (field "url" string)
 
--- | StartDownload
--- | StartDownloadResult (Result Http.Error String)
+
+decodeTorrentStats : Decode.Decoder TorrentStats
+decodeTorrentStats =
+    succeed TorrentStats
+        |: (field "downloaded" int)
+        |: (field "speed" int)
+        |: (field "progress" float)
+
+
+decodeStatus : String -> Decode.Decoder DownloadStatus
+decodeStatus status =
+    succeed (stringToDownloadStatus status)
+
+
+stringToDownloadStatus : String -> DownloadStatus
+stringToDownloadStatus status =
+    case status of
+        "download:start" ->
+            Started
+
+        "download:progress" ->
+            InProgress
+
+        "download:complete" ->
+            Complete
+
+        "download:failed" ->
+            Failed
+
+        _ ->
+            Unknown
+
+
+torrentDecoder : Decode.Decoder Torrent
+torrentDecoder =
+    succeed Torrent
+        |: (field "name" string)
+        |: (field "hash" string)
+        |: (field "status" string |> Decode.andThen decodeStatus)
+        |: (field "stats" (maybe decodeTorrentStats))
+        |: (field "files" (Decode.list decodeTorrentFile))
+
+
+statusDecoder : Decode.Decoder String
+statusDecoder =
+    Decode.field "status" Decode.string
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -136,45 +191,44 @@ update msg { connectionStatus, currentLink, torrents } =
                 _ ->
                     let
                         status =
-                            Decode.decodeString (Decode.field "status" Decode.string)
+                            Decode.decodeString statusDecoder str
 
                         _ =
                             Debug.log "Status " status
                     in
-                        ( Model connectionStatus currentLink torrents, Cmd.none )
+                        case status of
+                            Ok "download:start" ->
+                                --
+                                --
+                                --
+                                -- type alias Torrent =
+                                --     { name : String
+                                --     , hash : String
+                                --     , status : DownloadStatus
+                                --     , stats : Maybe TorrentStats
+                                --     , files : List TorrentFile
+                                --     }
+                                ( Model connectionStatus currentLink torrents, Cmd.none )
+
+                            Ok "download:progress" ->
+                                ( Model connectionStatus currentLink torrents, Cmd.none )
+
+                            Ok "download:complete" ->
+                                ( Model connectionStatus currentLink torrents, Cmd.none )
+
+                            Ok _ ->
+                                ( Model connectionStatus currentLink torrents, Cmd.none )
+
+                            Err _ ->
+                                ( Model connectionStatus currentLink torrents, Cmd.none )
 
 
-
--- StartDownload ->
---     ( model, postMagnetLink model.currentLink )
---
--- StartDownloadResult (Ok status) ->
---     ( { model | torrents = addEmptyTorrent status model.torrents }, Cmd.none )
---
--- StartDownloadResult (Err _) ->
---     ( model, Cmd.none )
-
-
-addEmptyTorrent : String -> List Torrent -> List Torrent
-addEmptyTorrent status torrents =
+addStartedTorrent : String -> List Torrent -> List Torrent
+addStartedTorrent status torrents =
     Torrent "" "" Started Nothing [] :: torrents
 
 
 
--- postMagnetLink : String -> Cmd Msg
--- postMagnetLink magnetLink =
---     Http.send StartDownloadResult (Http.post (backendURL ++ "/torAdd") (Http.jsonBody (magnetEncoder magnetLink)) statusDecoder)
-
-
-statusDecoder : Decode.Decoder String
-statusDecoder =
-    Decode.field "status" Decode.string
-
-
-
--- Create initial torrent structure with initial status
--- StartDownload str ->
---     ( Model connectionStatus torrents, Cmd.none )
 -- SUBSCRIPTIONS
 
 
