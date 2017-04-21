@@ -4,7 +4,7 @@ import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
 import Html.Events exposing (onClick, onWithOptions)
-import Json.Decode as Decode exposing (succeed, string, int, float, field, nullable, list, maybe)
+import Json.Decode as Decode exposing (..)
 import Json.Encode as Encode
 import Json.Decode.Extra exposing ((|:))
 import WebSocket
@@ -174,6 +174,21 @@ statusDecoder =
     Decode.field "status" Decode.string
 
 
+nullTorrent : Torrent
+nullTorrent =
+    Torrent "" "" Unknown Nothing []
+
+
+decodeTorrent : String -> Torrent
+decodeTorrent payload =
+    case decodeString torrentDecoder payload of
+        Ok torrent ->
+            torrent
+
+        Err _ ->
+            nullTorrent
+
+
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg { connectionStatus, currentLink, torrents } =
     case msg of
@@ -198,9 +213,6 @@ update msg { connectionStatus, currentLink, torrents } =
                     in
                         case status of
                             Ok "download:start" ->
-                                --
-                                --
-                                --
                                 -- type alias Torrent =
                                 --     { name : String
                                 --     , hash : String
@@ -208,7 +220,7 @@ update msg { connectionStatus, currentLink, torrents } =
                                 --     , stats : Maybe TorrentStats
                                 --     , files : List TorrentFile
                                 --     }
-                                ( Model connectionStatus currentLink torrents, Cmd.none )
+                                ( Model connectionStatus currentLink ((decodeTorrent str) :: torrents), Cmd.none )
 
                             Ok "download:progress" ->
                                 ( Model connectionStatus currentLink torrents, Cmd.none )
@@ -221,11 +233,6 @@ update msg { connectionStatus, currentLink, torrents } =
 
                             Err _ ->
                                 ( Model connectionStatus currentLink torrents, Cmd.none )
-
-
-addStartedTorrent : String -> List Torrent -> List Torrent
-addStartedTorrent status torrents =
-    Torrent "" "" Started Nothing [] :: torrents
 
 
 
