@@ -59,7 +59,16 @@ wss.on('connection', function connection(ws) {
 
         let torrentObject = {
           status: 'download:progress',
+          name: parsedInfo.name,
           hash: torrent.infoHash,
+          files: torrent.files.map(function(file) {
+            return {
+              name: file.name,
+              length: file.length,
+              path: file.path
+              // url: encodeURI(`${req.protocol}://${req.hostname}/download?file=${file.path}`)
+            };
+          }),
           stats: {
             downloaded: torrent.downloaded,
             speed: torrent.downloadSpeed,
@@ -78,9 +87,25 @@ wss.on('connection', function connection(ws) {
         console.log('Torrent download finished');
         // Send status to the client
         let torrentObject = {
+          name: parsedInfo.name,
+          status: 'download:complete',
           hash: torrent.infoHash,
-          status: 'download:complete'
+          files: torrent.files.map(function(file) {
+            return {
+              name: file.name,
+              length: file.length,
+              path: file.path
+              // url: encodeURI(`${req.protocol}://${req.hostname}/download?file=${file.path}`)
+            };
+          }),
+          stats: {
+            downloaded: torrent.downloaded,
+            speed: torrent.downloadSpeed,
+            progress: torrent.progress
+          }
         };
+
+        ws.send(JSON.stringify(torrentObject));
       });
     });
 
