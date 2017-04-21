@@ -8,6 +8,7 @@ import Html.Events exposing (onClick, onWithOptions)
 import Json.Decode as Decode exposing (..)
 import Json.Encode as Encode
 import Json.Decode.Extra exposing ((|:), optionalField)
+import List.Extra exposing (updateIf)
 import WebSocket
 
 
@@ -233,7 +234,14 @@ update msg { connectionStatus, currentLink, torrents } =
                                 ( Model connectionStatus currentLink ((decodeTorrent str) :: torrents), Cmd.none )
 
                             Ok "download:progress" ->
-                                ( Model connectionStatus currentLink torrents, Cmd.none )
+                                let
+                                    parsedTorrent =
+                                        decodeTorrent str
+
+                                    updatedTorrents =
+                                        updateIf (\torrent -> torrent.hash == parsedTorrent.hash) (\torrent -> parsedTorrent) torrents
+                                in
+                                    ( Model connectionStatus currentLink updatedTorrents, Cmd.none )
 
                             Ok "download:complete" ->
                                 ( Model connectionStatus currentLink torrents, Cmd.none )
