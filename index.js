@@ -34,7 +34,6 @@ wss.on('connection', function connection(ws) {
     client.add(message, {
       path: path.join(__dirname, 'tmp')
     }, (torrent) => {
-      console.log("Got torrent", torrent);
       client.on('torrent', function(torrent) {
         // When torrent info is ready
         let torrentObject = {
@@ -51,7 +50,9 @@ wss.on('connection', function connection(ws) {
           })
         };
 
-        ws.send(JSON.stringify(torrentObject));
+        ws.send(JSON.stringify(torrentObject), function(error) {
+          console.log('WS SEND ERROR', error);
+        });
       });
 
       torrent.on('download', function(bytes) {
