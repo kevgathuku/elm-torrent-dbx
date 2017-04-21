@@ -5705,7 +5705,7 @@ socket.io-parser@2.3.1:
     isarray "0.0.1"
     json3 "3.3.2"
 
-socket.io@1.7.2, socket.io@^1.7.2:
+socket.io@1.7.2:
   version "1.7.2"
   resolved "https://registry.yarnpkg.com/socket.io/-/socket.io-1.7.2.tgz#83bbbdf2e79263b378900da403e7843e05dc3b71"
   dependencies:
@@ -6563,9 +6563,16 @@ ws@1.1.1:
     options ">=0.0.5"
     ultron "1.0.x"
 
-ws@^2.0.0, ws@^2.2.0, ws@^2.2.3:
+ws@^2.0.0, ws@^2.2.0:
   version "2.2.3"
   resolved "https://registry.yarnpkg.com/ws/-/ws-2.2.3.tgz#f36c9719a56dff813f455af912a2078145bbd940"
+  dependencies:
+    safe-buffer "~5.0.1"
+    ultron "~1.1.0"
+
+ws@^2.3.1:
+  version "2.3.1"
+  resolved "https://registry.yarnpkg.com/ws/-/ws-2.3.1.tgz#6b94b3e447cb6a363f785eaf94af6359e8e81c80"
   dependencies:
     safe-buffer "~5.0.1"
     ultron "~1.1.0"
