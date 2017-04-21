@@ -47,7 +47,7 @@ type DownloadStatus
 
 type alias TorrentStats =
     { downloaded : Int
-    , speed : Int
+    , speed : Float
     , progress : Float
     }
 
@@ -133,7 +133,7 @@ decodeTorrentStats : Decode.Decoder TorrentStats
 decodeTorrentStats =
     succeed TorrentStats
         |: (field "downloaded" int)
-        |: (field "speed" int)
+        |: (field "speed" float)
         |: (field "progress" float)
 
 
@@ -167,7 +167,7 @@ torrentDecoder =
         |: (field "name" string)
         |: (field "hash" string)
         |: (field "status" string |> Decode.andThen decodeStatus)
-        |: (optionalField "stats" decodeTorrentStats)
+        |: (optionalField "stats" (Decode.field "stats" decodeTorrentStats))
         |: (field "files" (Decode.list decodeTorrentFile))
 
 
