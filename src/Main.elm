@@ -6,7 +6,6 @@ import Html.Attributes exposing (..)
 import Html.Events exposing (..)
 import Html.Events exposing (onClick, onWithOptions)
 import Json.Decode as Decode exposing (..)
-import Json.Encode as Encode
 import Json.Decode.Extra exposing ((|:), optionalField)
 import List.Extra exposing (updateIf)
 import WebSocket
@@ -102,13 +101,6 @@ backendURL =
 websocketURL : String
 websocketURL =
     "ws://localhost:4000/ws"
-
-
-magnetEncoder : String -> Encode.Value
-magnetEncoder magnetLink =
-    Encode.object
-        [ ( "magnet", Encode.string magnetLink )
-        ]
 
 
 
@@ -275,6 +267,94 @@ onClickNoDefault message =
         onWithOptions "click" config (Decode.succeed message)
 
 
+showTorrents : Model -> Html Msg
+showTorrents model =
+    if (List.isEmpty model.torrents) then
+        div [ class "box" ]
+            [ article [ class "media" ]
+                [ p
+                    [ class "subtitle is-5" ]
+                    [ text "Add Torrents Above" ]
+                ]
+            ]
+    else
+        div [ class "box" ]
+            (List.map
+                torrentTemplate
+                model.torrents
+            )
+
+
+torrentTemplate : Torrent -> Html Msg
+torrentTemplate torrent =
+    article [ class "media" ]
+        [ div [ class "media-content" ]
+            [ div [ class "content" ]
+                [ div [ class "columns" ]
+                    [ div [ class "column is-9" ]
+                        [ p []
+                            [ strong []
+                                [ text torrent.name ]
+                            , br []
+                                []
+                            , small []
+                                [ text torrent.hash ]
+                            , br []
+                                []
+                            , progress
+                                [ class "progress is-info"
+                                , Html.Attributes.max "100"
+                                , Html.Attributes.value
+                                    (case torrent.stats of
+                                        Nothing ->
+                                            toString 0
+
+                                        Just { downloaded, speed, progress } ->
+                                            toString (progress * 100)
+                                    )
+                                ]
+                                [ text
+                                    (case torrent.stats of
+                                        Nothing ->
+                                            toString 0 ++ " %"
+
+                                        Just { downloaded, speed, progress } ->
+                                            toString (progress * 100) ++ " %"
+                                    )
+                                ]
+                            ]
+                        ]
+                    , div [ class "column" ]
+                        [ div [ class "columns" ]
+                            [ a [ class "column" ]
+                                [ text "Files"
+                                , span [ class "icon" ]
+                                    [ i [ class "fa fa-file" ]
+                                        []
+                                    ]
+                                ]
+                            , a [ class "column" ]
+                                [ text "Start"
+                                , span [ class "icon" ]
+                                    [ i [ class "fa fa-cloud-download" ]
+                                        []
+                                    ]
+                                ]
+                            , a [ class "column" ]
+                                [ text "Delete"
+                                , span [ class "icon" ]
+                                    [ i [ class "fa fa-trash-o" ]
+                                        []
+                                    ]
+                                ]
+                            ]
+                        ]
+                    ]
+                ]
+            ]
+        ]
+
+
 view : Model -> Html Msg
 view model =
     div [ class "app" ]
@@ -328,55 +408,7 @@ view model =
             [ div [ class "column is-8 is-offset-2" ]
                 [ p [ class "title is-3" ]
                     [ text "Torrents" ]
-                , div [ class "box" ]
-                    [ article [ class "media" ]
-                        [ div [ class "media-content" ]
-                            [ div [ class "content" ]
-                                [ div [ class "columns" ]
-                                    [ div [ class "column is-9" ]
-                                        [ p []
-                                            [ strong []
-                                                [ text "Leaves of Grass by Walt Whitman" ]
-                                            , br []
-                                                []
-                                            , small []
-                                                [ text "#955f3d891dfc792a8a957e8c97e54d25f2695d9d" ]
-                                            , br []
-                                                []
-                                            , progress [ class "progress is-info", Html.Attributes.max "100", Html.Attributes.value "45" ]
-                                                [ text "45%" ]
-                                            ]
-                                        ]
-                                    , div [ class "column" ]
-                                        [ div [ class "columns" ]
-                                            [ a [ class "column" ]
-                                                [ text "Files"
-                                                , span [ class "icon" ]
-                                                    [ i [ class "fa fa-file" ]
-                                                        []
-                                                    ]
-                                                ]
-                                            , a [ class "column" ]
-                                                [ text "Start"
-                                                , span [ class "icon" ]
-                                                    [ i [ class "fa fa-cloud-download" ]
-                                                        []
-                                                    ]
-                                                ]
-                                            , a [ class "column" ]
-                                                [ text "Delete"
-                                                , span [ class "icon" ]
-                                                    [ i [ class "fa fa-trash-o" ]
-                                                        []
-                                                    ]
-                                                ]
-                                            ]
-                                        ]
-                                    ]
-                                ]
-                            ]
-                        ]
-                    ]
+                , showTorrents model
                 ]
             ]
         ]
