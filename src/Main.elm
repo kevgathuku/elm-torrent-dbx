@@ -7,7 +7,7 @@ import Html.Events exposing (..)
 import Html.Events exposing (onClick, onWithOptions)
 import Json.Decode as Decode exposing (..)
 import Json.Decode.Extra exposing ((|:), optionalField)
-import List.Extra exposing (updateIf)
+import List.Extra exposing (replaceIf, uniqueBy)
 import WebSocket
 
 
@@ -192,9 +192,14 @@ decodeTorrent payload =
                 nullTorrent
 
 
+dedupeTorrents : List Torrent -> List Torrent
+dedupeTorrents torrents =
+    uniqueBy (\torrent -> torrent.hash) torrents
+
+
 updateTorrentProgress : Torrent -> List Torrent -> List Torrent
 updateTorrentProgress parsedTorrent modelTorrents =
-    updateIf (\torrent -> torrent.hash == parsedTorrent.hash) (\torrent -> parsedTorrent) modelTorrents
+    replaceIf (\torrent -> torrent.hash == parsedTorrent.hash) parsedTorrent (dedupeTorrents modelTorrents)
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -221,14 +226,7 @@ update msg { connectionStatus, currentLink, torrents } =
                     in
                         case status of
                             Ok "download:start" ->
-                                -- type alias Torrent =
-                                --     { name : String
-                                --     , hash : String
-                                --     , status : DownloadStatus
-                                --     , stats : Maybe TorrentStats
-                                --     , files : List TorrentFile
-                                --     }
-                                ( Model connectionStatus currentLink ((decodeTorrent str) :: torrents), Cmd.none )
+                                ( Model connectionStatus currentLink ((decodeTorrent str) :: (dedupeTorrents torrents)), Cmd.none )
 
                             Ok "download:progress" ->
                                 ( Model connectionStatus currentLink (updateTorrentProgress (decodeTorrent str) torrents), Cmd.none )
@@ -307,7 +305,7 @@ torrentTemplate torrent =
                                 , Html.Attributes.value
                                     (case torrent.stats of
                                         Nothing ->
-                                            toString 0
+                                            "0"
 
                                         Just { downloaded, speed, progress } ->
                                             toString (progress * 100)
@@ -316,7 +314,7 @@ torrentTemplate torrent =
                                 [ text
                                     (case torrent.stats of
                                         Nothing ->
-                                            toString 0 ++ " %"
+                                            "0 %"
 
                                         Just { downloaded, speed, progress } ->
                                             toString (progress * 100) ++ " %"
