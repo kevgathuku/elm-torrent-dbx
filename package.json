@@ -8,9 +8,13 @@
     "clean": "nwb clean-app",
     "start:server": "nodemon index.js",
     "start:client": "nwb serve-web-app --reload",
-    "test": "nwb test",
+    "test:old": "nwb test",
+    "test": "elm-test",
     "test:coverage": "nwb test --coverage",
     "test:watch": "nwb test --server"
+  },
+  "directories": {
+    "test": "tests"
   },
   "dependencies": {
     "cors": "^2.8.3",
