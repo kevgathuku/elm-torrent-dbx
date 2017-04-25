@@ -264,6 +264,17 @@ subscriptions model =
 -- VIEW
 
 
+onClickNoDefault : msg -> Attribute msg
+onClickNoDefault message =
+    let
+        config =
+            { stopPropagation = True
+            , preventDefault = True
+            }
+    in
+        onWithOptions "click" config (Decode.succeed message)
+
+
 view : Model -> Html Msg
 view model =
     div [ class "app" ]
@@ -313,15 +324,59 @@ view model =
                     ]
                 ]
             ]
+        , div [ class "columns" ]
+            [ div [ class "column is-8 is-offset-2" ]
+                [ p [ class "title is-3" ]
+                    [ text "Torrents" ]
+                , div [ class "box" ]
+                    [ article [ class "media" ]
+                        [ div [ class "media-content" ]
+                            [ div [ class "content" ]
+                                [ div [ class "columns" ]
+                                    [ div [ class "column is-9" ]
+                                        [ p []
+                                            [ strong []
+                                                [ text "Leaves of Grass by Walt Whitman" ]
+                                            , br []
+                                                []
+                                            , small []
+                                                [ text "#955f3d891dfc792a8a957e8c97e54d25f2695d9d" ]
+                                            , br []
+                                                []
+                                            , progress [ class "progress is-info", Html.Attributes.max "100", Html.Attributes.value "45" ]
+                                                [ text "45%" ]
+                                            ]
+                                        ]
+                                    , div [ class "column" ]
+                                        [ div [ class "columns" ]
+                                            [ a [ class "column" ]
+                                                [ text "Files"
+                                                , span [ class "icon" ]
+                                                    [ i [ class "fa fa-file" ]
+                                                        []
+                                                    ]
+                                                ]
+                                            , a [ class "column" ]
+                                                [ text "Start"
+                                                , span [ class "icon" ]
+                                                    [ i [ class "fa fa-cloud-download" ]
+                                                        []
+                                                    ]
+                                                ]
+                                            , a [ class "column" ]
+                                                [ text "Delete"
+                                                , span [ class "icon" ]
+                                                    [ i [ class "fa fa-trash-o" ]
+                                                        []
+                                                    ]
+                                                ]
+                                            ]
+                                        ]
+                                    ]
+                                ]
+                            ]
+                        ]
+                    ]
+                ]
+            ]
         ]
-
-
-onClickNoDefault : msg -> Attribute msg
-onClickNoDefault message =
-    let
-        config =
-            { stopPropagation = True
-            , preventDefault = True
-            }
-    in
-        onWithOptions "click" config (Decode.succeed message)
