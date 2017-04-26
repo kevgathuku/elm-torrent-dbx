@@ -11,10 +11,8 @@ os:
 env:
   matrix:
     - ELM_VERSION=0.18.0 TARGET_NODE_VERSION=node
-    - ELM_VERSION=0.18.0 TARGET_NODE_VERSION=4.0
 
 before_install:
-  - echo -e "Host github.com\n\tStrictHostKeyChecking no\n" >> ~/.ssh/config
   - | # epic build time improvement - see https://github.com/elm-lang/elm-compiler/issues/1473#issuecomment-245704142
     if [ ! -d sysconfcpus/bin ];
     then
