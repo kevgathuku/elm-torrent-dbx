@@ -1,11 +1,28 @@
 module Model exposing (..)
 
+import Dict
 import Messages exposing (Msg)
+
+
+type alias Model =
+    { connectionStatus : ConnectionStatus
+    , currentLink : String
+    , torrents : Dict.Dict String Torrent
+    }
 
 
 type ConnectionStatus
     = Offline
     | Online
+
+
+type alias Torrent =
+    { name : String
+    , hash : String
+    , status : DownloadStatus
+    , stats : Maybe TorrentStats
+    , files : List TorrentFile
+    }
 
 
 type DownloadStatus
@@ -31,22 +48,6 @@ type alias TorrentFile =
     }
 
 
-type alias Torrent =
-    { name : String
-    , hash : String
-    , status : DownloadStatus
-    , stats : Maybe TorrentStats
-    , files : List TorrentFile
-    }
-
-
-type alias Model =
-    { connectionStatus : ConnectionStatus
-    , currentLink : String
-    , torrents : List Torrent
-    }
-
-
 init : ( Model, Cmd Msg )
 init =
-    ( Model Offline "" [], Cmd.none )
+    ( Model Offline "" Dict.empty, Cmd.none )

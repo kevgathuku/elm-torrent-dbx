@@ -1,5 +1,6 @@
 module View exposing (view)
 
+import Dict
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
@@ -22,7 +23,7 @@ onClickNoDefault message =
 
 showTorrents : Model -> Html Msg
 showTorrents model =
-    if (List.isEmpty model.torrents) then
+    if (Dict.isEmpty model.torrents) then
         div [ class "box" ]
             [ article [ class "media" ]
                 [ p
@@ -34,7 +35,7 @@ showTorrents model =
         div [ class "box" ]
             (List.map
                 torrentTemplate
-                model.torrents
+                (Dict.values model.torrents)
             )
 
 
