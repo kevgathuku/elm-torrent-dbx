@@ -1,5 +1,6 @@
 module Update exposing (update, subscriptions)
 
+import Dict
 import Json.Decode as Decode exposing (..)
 import Json.Decode.Extra exposing ((|:), optionalField)
 import List.Extra exposing (replaceIf, uniqueBy)
@@ -39,11 +40,6 @@ decodeTorrentStats =
         |: (field "progress" float)
 
 
-decodeStatus : String -> Decode.Decoder DownloadStatus
-decodeStatus status =
-    succeed (stringToDownloadStatus status)
-
-
 stringToDownloadStatus : String -> DownloadStatus
 stringToDownloadStatus status =
     case status of
@@ -63,6 +59,11 @@ stringToDownloadStatus status =
             Unknown
 
 
+decodeStatus : String -> Decode.Decoder DownloadStatus
+decodeStatus status =
+    succeed (stringToDownloadStatus status)
+
+
 torrentDecoder : Decode.Decoder Torrent
 torrentDecoder =
     succeed Torrent
@@ -76,6 +77,11 @@ torrentDecoder =
 statusDecoder : Decode.Decoder String
 statusDecoder =
     Decode.field "status" Decode.string
+
+
+hashDecoder : Decode.Decoder String
+hashDecoder =
+    Decode.field "hash" Decode.string
 
 
 nullTorrent : Torrent
@@ -101,14 +107,9 @@ decodeTorrent payload =
                 nullTorrent
 
 
-dedupeTorrents : List Torrent -> List Torrent
-dedupeTorrents torrents =
-    uniqueBy (\torrent -> torrent.hash) torrents
-
-
 updateTorrentProgress : Torrent -> List Torrent -> List Torrent
 updateTorrentProgress parsedTorrent modelTorrents =
-    replaceIf (\torrent -> torrent.hash == parsedTorrent.hash) parsedTorrent (dedupeTorrents modelTorrents)
+    replaceIf (\torrent -> torrent.hash == parsedTorrent.hash) parsedTorrent modelTorrents
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -130,18 +131,24 @@ update msg { connectionStatus, currentLink, torrents } =
                         status =
                             Decode.decodeString statusDecoder str
 
+                        hash =
+                            Decode.decodeString hashDecoder str |> toString
+
+                        decodedTorrent =
+                            (decodeTorrent str)
+
                         _ =
                             Debug.log "Status " status
                     in
                         case status of
                             Ok "download:start" ->
-                                ( Model connectionStatus currentLink ((decodeTorrent str) :: (dedupeTorrents torrents)), Cmd.none )
+                                ( Model connectionStatus currentLink (Dict.insert hash decodedTorrent torrents), Cmd.none )
 
                             Ok "download:progress" ->
-                                ( Model connectionStatus currentLink (updateTorrentProgress (decodeTorrent str) torrents), Cmd.none )
+                                ( Model connectionStatus currentLink (Dict.update hash (\_ -> Just decodedTorrent) torrents), Cmd.none )
 
                             Ok "download:complete" ->
-                                ( Model connectionStatus currentLink (updateTorrentProgress (decodeTorrent str) torrents), Cmd.none )
+                                ( Model connectionStatus currentLink (Dict.update hash (\_ -> Just decodedTorrent) torrents), Cmd.none )
 
                             Ok _ ->
                                 ( Model connectionStatus currentLink torrents, Cmd.none )
