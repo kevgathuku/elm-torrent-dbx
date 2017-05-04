@@ -17,9 +17,9 @@ const server = http.createServer(app);
 const client = new WebTorrent();
 const wss = new WebSocket.Server({
   server: server,
-  perMessageDeflate: false,
-  path: '/ws'
+  perMessageDeflate: false
 });
+
 
 wss.on('connection', function connection(ws) {
 

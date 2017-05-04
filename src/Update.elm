@@ -11,7 +11,7 @@ import Messages exposing (Msg(..))
 
 websocketURL : String
 websocketURL =
-    "ws://localhost:4000/ws"
+    "ws://localhost:4000"
 
 
 
