@@ -12,7 +12,7 @@
     "test": "elm-test",
     "test:coverage": "nwb test --coverage",
     "test:watch": "nwb test --server",
-    "postinstall": "if [ -n \"$npm_config_production\" ]; then npm run build; fi"
+    "postinstall": "if [ -n \"$npm_config_production\" ]; then ./node_modules/.bin/elm-package install -y && npm run build; fi"
   },
   "directories": {
     "test": "tests"
@@ -21,16 +21,16 @@
     "cors": "^2.8.3",
     "dotenv": "^4.0.0",
     "dropbox": "^2.5.0",
+    "elm": "^0.18.0",
+    "elm-webpack-loader": "^4.3.0",
     "express": "^4.14.0",
     "magnet-uri": "^5.1.5",
     "nodemon": "^1.11.0",
     "nwb": "^0.15.6",
     "webtorrent": "^0.98.0",
-    "ws": "^2.3.1",
-    "elm-webpack-loader": "^4.3.0"
+    "ws": "^2.3.1"
   },
-  "devDependencies": {
-  },
+  "devDependencies": {},
   "author": "",
   "license": "MIT",
   "repository": ""
