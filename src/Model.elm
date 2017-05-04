@@ -6,6 +6,7 @@ import Messages exposing (Msg)
 
 type alias Model =
     { connectionStatus : ConnectionStatus
+    , websocketURL : String
     , currentLink : String
     , torrents : Dict.Dict String Torrent
     }
@@ -49,10 +50,18 @@ type alias TorrentFile =
 
 
 type alias Flags =
-    { server_port : String
+    { ws_url : String
     }
 
 
 init : Flags -> ( Model, Cmd Msg )
 init flags =
-    ( Model Offline "" Dict.empty, Cmd.none )
+    let
+        wsURL =
+            -- Eventual format: "ws://localhost:4000"
+            "ws://" ++ flags.ws_url
+
+        _ =
+            Debug.log "Successfuly parsed WS URL " wsURL
+    in
+        ( Model Offline wsURL "" Dict.empty, Cmd.none )

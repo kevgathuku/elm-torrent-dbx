@@ -9,18 +9,12 @@ import Model exposing (..)
 import Messages exposing (Msg(..))
 
 
-websocketURL : String
-websocketURL =
-    "ws://localhost:4000"
-
-
-
 -- SUBSCRIPTIONS
 
 
 subscriptions : Model -> Sub Msg
 subscriptions model =
-    WebSocket.listen websocketURL NewMessage
+    WebSocket.listen model.websocketURL NewMessage
 
 
 decodeTorrentFile : Decode.Decoder TorrentFile
@@ -113,18 +107,30 @@ updateTorrentProgress parsedTorrent modelTorrents =
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
-update msg { connectionStatus, currentLink, torrents } =
+update msg model =
     case msg of
         Input newInput ->
-            ( Model connectionStatus newInput torrents, Cmd.none )
+            let
+                updatedModel =
+                    { model | currentLink = newInput }
+            in
+                ( updatedModel, Cmd.none )
 
         Send ->
-            ( Model connectionStatus "" torrents, WebSocket.send websocketURL currentLink )
+            let
+                updatedModel =
+                    { model | currentLink = "" }
+            in
+                ( updatedModel, WebSocket.send model.websocketURL model.currentLink )
 
         NewMessage str ->
             case str of
                 "Connection established" ->
-                    ( Model Online currentLink torrents, Cmd.none )
+                    let
+                        updatedModel =
+                            { model | connectionStatus = Online }
+                    in
+                        ( updatedModel, Cmd.none )
 
                 _ ->
                     let
@@ -142,16 +148,28 @@ update msg { connectionStatus, currentLink, torrents } =
                     in
                         case status of
                             Ok "download:start" ->
-                                ( Model connectionStatus currentLink (Dict.insert hash decodedTorrent torrents), Cmd.none )
+                                let
+                                    updatedModel =
+                                        { model | torrents = (Dict.insert hash decodedTorrent model.torrents) }
+                                in
+                                    ( updatedModel, Cmd.none )
 
                             Ok "download:progress" ->
-                                ( Model connectionStatus currentLink (Dict.update hash (\_ -> Just decodedTorrent) torrents), Cmd.none )
+                                let
+                                    updatedModel =
+                                        { model | torrents = (Dict.update hash (\_ -> Just decodedTorrent) model.torrents) }
+                                in
+                                    ( updatedModel, Cmd.none )
 
                             Ok "download:complete" ->
-                                ( Model connectionStatus currentLink (Dict.update hash (\_ -> Just decodedTorrent) torrents), Cmd.none )
+                                let
+                                    updatedModel =
+                                        { model | torrents = (Dict.update hash (\_ -> Just decodedTorrent) model.torrents) }
+                                in
+                                    ( updatedModel, Cmd.none )
 
                             Ok _ ->
-                                ( Model connectionStatus currentLink torrents, Cmd.none )
+                                ( model, Cmd.none )
 
                             Err _ ->
-                                ( Model connectionStatus currentLink torrents, Cmd.none )
+                                ( model, Cmd.none )
