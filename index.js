@@ -135,9 +135,9 @@ app.use(bodyParser.urlencoded({
 // Render the client routes if any other URL is passed in
 // Do this only in production. The local client server is used otherwise
 if (isProduction) {
-  app.use(express.static(path.resolve(__dirname, 'build')));
+  app.use(express.static(path.resolve(__dirname, 'dist')));
   app.get('*', (req, res) => {
-    res.sendFile(path.resolve(__dirname, 'build', 'index.html'));
+    res.sendFile(path.resolve(__dirname, 'dist', 'index.html'));
   });
 }
 
