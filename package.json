@@ -8,6 +8,7 @@
     "clean": "nwb clean-app",
     "start:server": "nodemon index.js",
     "start:client": "nwb serve-web-app --reload",
+    "start": "nodemon index.js",
     "test:old": "nwb test",
     "test": "elm-test",
     "test:coverage": "nwb test --coverage",
