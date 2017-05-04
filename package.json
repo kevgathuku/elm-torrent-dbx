@@ -12,7 +12,7 @@
     "test": "elm-test",
     "test:coverage": "nwb test --coverage",
     "test:watch": "nwb test --server",
-    "postinstall": "npm run build"
+    "postinstall": "if [ -n \"$npm_config_production\" ]; then npm run build; fi"
   },
   "directories": {
     "test": "tests"
