@@ -7,7 +7,7 @@ import View
 
 
 main =
-    TimeTravel.program
+    TimeTravel.programWithFlags
         { init = Model.init
         , view = View.view
         , update = Update.update

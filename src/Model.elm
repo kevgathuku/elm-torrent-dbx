@@ -48,6 +48,11 @@ type alias TorrentFile =
     }
 
 
-init : ( Model, Cmd Msg )
-init =
+type alias Flags =
+    { server_port : String
+    }
+
+
+init : Flags -> ( Model, Cmd Msg )
+init flags =
     ( Model Offline "" Dict.empty, Cmd.none )
