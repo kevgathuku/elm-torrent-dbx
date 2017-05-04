@@ -11,7 +11,8 @@
     "test:old": "nwb test",
     "test": "elm-test",
     "test:coverage": "nwb test --coverage",
-    "test:watch": "nwb test --server"
+    "test:watch": "nwb test --server",
+    "postinstall": "npm run build"
   },
   "directories": {
     "test": "tests"
