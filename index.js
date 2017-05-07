@@ -2,7 +2,6 @@ const http = require('http');
 const path = require('path');
 
 const bodyParser = require('body-parser');
-const cors = require('cors');
 const express = require('express');
 const WebSocket = require('ws');
 const magnet = require('magnet-uri');
@@ -126,10 +125,6 @@ app.use(bodyParser.urlencoded({
     extended: true
   }))
   .use(bodyParser.json())
-  .use(cors({
-    origin: process.env.CLIENT_URL || '*',
-    allowedHeaders: 'Origin, X-Requested-With, Content-Type, Accept'
-  }))
   .use('/', require('./routes').router);
 
 // Render the client routes if any other URL is passed in

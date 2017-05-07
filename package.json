@@ -19,7 +19,6 @@
     "test": "tests"
   },
   "dependencies": {
-    "cors": "^2.8.3",
     "dotenv": "^4.0.0",
     "dropbox": "^2.5.0",
     "elm": "^0.18.0",
