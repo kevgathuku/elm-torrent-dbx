@@ -13,11 +13,11 @@ install:
   - nvm use $TARGET_NODE_VERSION
   - node --version
   - npm --version
-  - npm install -g elm-use elm-test
+  - npm install -g elm-use elm-test elm-format
   - elm-use $ELM_VERSION
+  - npm install
   - travis_retry elm-package install --yes
   - cd tests
-  - npm install
   - travis_retry elm-package install --yes
   - cd ..
 
