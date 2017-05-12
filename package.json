@@ -4,21 +4,19 @@
   "description": "Describe torrent-elm here",
   "private": true,
   "scripts": {
-    "build": "nwb build-web-app",
+    "build": "elm-app build",
     "clean": "nwb clean-app",
     "start:server": "nodemon index.js",
-    "start:client": "nwb serve-web-app --reload",
+    "start:client": "elm-app start",
     "start": "nodemon index.js",
-    "test:old": "nwb test",
-    "test": "elm-test",
-    "test:coverage": "nwb test --coverage",
-    "test:watch": "nwb test --server",
+    "test": "elm-app test",
     "postinstall": "if [ -n \"$npm_config_production\" ]; then ./node_modules/.bin/elm-package install -y && npm run build; fi"
   },
   "directories": {
     "test": "tests"
   },
   "dependencies": {
+    "create-elm-app": "^0.6.3",
     "dotenv": "^4.0.0",
     "dropbox": "^2.5.0",
     "elm": "^0.18.0",
