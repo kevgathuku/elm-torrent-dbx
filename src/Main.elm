@@ -1,13 +1,13 @@
 module Main exposing (..)
 
-import TimeTravel.Html as TimeTravel
+import Html  exposing (Html)
 import Model
 import Update
 import View
 
 
 main =
-    TimeTravel.programWithFlags
+    Html.programWithFlags
         { init = Model.init
         , view = View.view
         , update = Update.update
