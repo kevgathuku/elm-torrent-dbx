@@ -10,7 +10,7 @@
     "start:client": "elm-app start",
     "start": "nodemon index.js",
     "test": "elm-app test",
-    "postinstall": "if [ -n \"$npm_config_production\" ]; then ./node_modules/.bin/elm-package install -y && npm run build; fi"
+    "postinstall": "if [ -n \"$npm_config_production\" ]; then elm-package install -y && npm run build; fi"
   },
   "directories": {
     "test": "tests"
@@ -20,7 +20,6 @@
     "dotenv": "^4.0.0",
     "dropbox": "^2.5.0",
     "elm": "^0.18.0",
-    "elm-webpack-loader": "^4.3.0",
     "express": "^4.14.0",
     "magnet-uri": "^5.1.5",
     "nodemon": "^1.11.0",
