@@ -101,11 +101,6 @@ decodeTorrent payload =
                 nullTorrent
 
 
-updateTorrentProgress : Torrent -> List Torrent -> List Torrent
-updateTorrentProgress parsedTorrent modelTorrents =
-    replaceIf (\torrent -> torrent.hash == parsedTorrent.hash) parsedTorrent modelTorrents
-
-
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of

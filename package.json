@@ -22,7 +22,6 @@
     "express": "^4.14.0",
     "magnet-uri": "^5.1.5",
     "nodemon": "^1.11.0",
-    "nwb": "^0.15.6",
     "webtorrent": "^0.98.0",
     "ws": "^2.3.1",
     "assets-webpack-plugin": "^3.5.1",
