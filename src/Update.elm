@@ -3,7 +3,6 @@ module Update exposing (update, subscriptions)
 import Dict
 import Json.Decode as Decode exposing (..)
 import Json.Decode.Extra exposing ((|:), optionalField)
-import List.Extra exposing (replaceIf, uniqueBy)
 import WebSocket
 import Model exposing (..)
 import Messages exposing (Msg(..))
@@ -20,18 +19,18 @@ subscriptions model =
 decodeTorrentFile : Decode.Decoder TorrentFile
 decodeTorrentFile =
     succeed TorrentFile
-        |: (field "name" string)
-        |: (field "length" int)
-        |: (field "path" string)
-        |: (optionalField "url" string)
+        |: field "name" string
+        |: field "length" int
+        |: field "path" string
+        |: optionalField "url" string
 
 
 decodeTorrentStats : Decode.Decoder TorrentStats
 decodeTorrentStats =
     succeed TorrentStats
-        |: (field "downloaded" int)
-        |: (field "speed" float)
-        |: (field "progress" float)
+        |: field "downloaded" int
+        |: field "speed" float
+        |: field "progress" float
 
 
 stringToDownloadStatus : String -> DownloadStatus
@@ -61,11 +60,11 @@ decodeStatus status =
 torrentDecoder : Decode.Decoder Torrent
 torrentDecoder =
     succeed Torrent
-        |: (field "name" string)
-        |: (field "hash" string)
+        |: field "name" string
+        |: field "hash" string
         |: (field "status" string |> Decode.andThen decodeStatus)
-        |: (optionalField "stats" (Decode.field "stats" decodeTorrentStats))
-        |: (field "files" (Decode.list decodeTorrentFile))
+        |: optionalField "stats" (Decode.field "stats" decodeTorrentStats)
+        |: field "files" (Decode.list decodeTorrentFile)
 
 
 statusDecoder : Decode.Decoder String
@@ -136,7 +135,7 @@ update msg model =
                             Decode.decodeString hashDecoder str |> toString
 
                         decodedTorrent =
-                            (decodeTorrent str)
+                            decodeTorrent str
 
                         _ =
                             Debug.log "Status " status
@@ -145,21 +144,21 @@ update msg model =
                             Ok "download:start" ->
                                 let
                                     updatedModel =
-                                        { model | torrents = (Dict.insert hash decodedTorrent model.torrents) }
+                                        { model | torrents = Dict.insert hash decodedTorrent model.torrents }
                                 in
                                     ( updatedModel, Cmd.none )
 
                             Ok "download:progress" ->
                                 let
                                     updatedModel =
-                                        { model | torrents = (Dict.update hash (\_ -> Just decodedTorrent) model.torrents) }
+                                        { model | torrents = Dict.update hash (\_ -> Just decodedTorrent) model.torrents }
                                 in
                                     ( updatedModel, Cmd.none )
 
                             Ok "download:complete" ->
                                 let
                                     updatedModel =
-                                        { model | torrents = (Dict.update hash (\_ -> Just decodedTorrent) model.torrents) }
+                                        { model | torrents = Dict.update hash (\_ -> Just decodedTorrent) model.torrents }
                                 in
                                     ( updatedModel, Cmd.none )
 

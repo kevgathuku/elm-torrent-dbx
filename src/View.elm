@@ -3,8 +3,7 @@ module View exposing (view)
 import Dict
 import Html exposing (..)
 import Html.Attributes exposing (..)
-import Html.Events exposing (..)
-import Html.Events exposing (onClick, onWithOptions)
+import Html.Events exposing (onInput, onWithOptions)
 import Json.Decode as Decode exposing (..)
 import Model exposing (..)
 import Messages exposing (Msg(..))
@@ -23,7 +22,7 @@ onClickNoDefault message =
 
 showTorrents : Model -> Html Msg
 showTorrents model =
-    if (Dict.isEmpty model.torrents) then
+    if Dict.isEmpty model.torrents then
         div [ class "box" ]
             [ article [ class "media" ]
                 [ p
@@ -63,7 +62,7 @@ torrentTemplate torrent =
                                         Nothing ->
                                             "0"
 
-                                        Just { downloaded, speed, progress } ->
+                                        Just { progress } ->
                                             toString (progress * 100)
                                     )
                                 ]
@@ -72,7 +71,7 @@ torrentTemplate torrent =
                                         Nothing ->
                                             "0 %"
 
-                                        Just { downloaded, speed, progress } ->
+                                        Just { progress } ->
                                             toString (progress * 100) ++ " %"
                                     )
                                 ]

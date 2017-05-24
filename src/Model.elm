@@ -56,9 +56,4 @@ type alias Flags =
 
 init : Flags -> ( Model, Cmd Msg )
 init flags =
-    let
-        _ =
-            -- Eventual format: "ws://localhost:4000"
-            Debug.log "Successfuly parsed WS URL " flags.ws_url
-    in
-        ( Model Offline flags.ws_url "" Dict.empty, Cmd.none )
+    ( Model Offline flags.ws_url "" Dict.empty, Cmd.none )
