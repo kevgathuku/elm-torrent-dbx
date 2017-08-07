@@ -128,7 +128,7 @@ app
     })
   )
   .use(bodyParser.json())
-  .use('/', require('./routes').router);
+  .use('/', require('./routes'));
 
 // Render the client routes if any other URL is passed in
 // Do this only in production. The local client server is used otherwise

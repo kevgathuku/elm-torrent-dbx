@@ -12,6 +12,4 @@ router.get('/download', function(req, res) {
   res.download(file, fileName);
 });
 
-module.exports = {
-  router: router
-};
+module.exports = router;
