@@ -19,9 +19,7 @@ const wss = new WebSocket.Server({
   perMessageDeflate: false
 });
 
-
 wss.on('connection', function connection(ws) {
-
   ws.on('close', function(code, reaason) {
     console.log('Connection closed: ', code, reaason);
   });
@@ -30,100 +28,105 @@ wss.on('connection', function connection(ws) {
     const parsedInfo = magnet.decode(message);
     console.log(`Downloading ${parsedInfo.name}`);
 
-    client.add(message, {
-      path: path.join(__dirname, 'tmp')
-    }, (torrent) => {
-      client.on('torrent', function(torrent) {
-        // When torrent info is ready
-        let torrentObject = {
-          status: 'download:start',
-          name: parsedInfo.name,
-          hash: torrent.infoHash,
-          files: torrent.files.map(function(file) {
-            return {
-              name: file.name,
-              length: file.length,
-              path: file.path
-              // url: encodeURI(`${req.protocol}://${req.hostname}/download?file=${file.path}`)
-            };
-          })
-        };
+    client.add(
+      message,
+      {
+        path: path.join(__dirname, 'tmp')
+      },
+      torrent => {
+        client.on('torrent', function(torrent) {
+          // When torrent info is ready
+          let torrentObject = {
+            status: 'download:start',
+            name: parsedInfo.name,
+            hash: torrent.infoHash,
+            files: torrent.files.map(function(file) {
+              return {
+                name: file.name,
+                length: file.length,
+                path: file.path
+              };
+            })
+          };
 
-        ws.send(JSON.stringify(torrentObject), function(error) {
-          console.log('WS SEND ERROR', error);
+          ws.send(JSON.stringify(torrentObject), function(error) {
+            console.log('WS SEND ERROR', error);
+          });
         });
-      });
 
-      torrent.on('download', function(bytes) {
+        torrent.on('download', function(bytes) {
+          let torrentObject = {
+            status: 'download:progress',
+            name: parsedInfo.name,
+            hash: torrent.infoHash,
+            files: torrent.files.map(function(file) {
+              return {
+                name: file.name,
+                length: file.length,
+                path: file.path
+              };
+            }),
+            stats: {
+              downloaded: torrent.downloaded,
+              speed: torrent.downloadSpeed,
+              progress: torrent.progress
+            }
+          };
 
-        let torrentObject = {
-          status: 'download:progress',
-          name: parsedInfo.name,
-          hash: torrent.infoHash,
-          files: torrent.files.map(function(file) {
-            return {
-              name: file.name,
-              length: file.length,
-              path: file.path
-              // url: encodeURI(`${req.protocol}://${req.hostname}/download?file=${file.path}`)
-            };
-          }),
-          stats: {
-            downloaded: torrent.downloaded,
-            speed: torrent.downloadSpeed,
-            progress: torrent.progress
+          console.log('total downloaded: ' + torrent.downloaded);
+          console.log('download speed: ' + torrent.downloadSpeed);
+          console.log('progress: ' + torrent.progress);
+
+          ws.send(JSON.stringify(torrentObject));
+
+          if (torrent.progress === 1) {
+            ws.send(
+              JSON.stringify(
+                Object.assign(torrentObject, {
+                  status: 'download:complete'
+                })
+              )
+            );
           }
-        };
+        });
 
-        console.log('total downloaded: ' + torrent.downloaded);
-        console.log('download speed: ' + torrent.downloadSpeed);
-        console.log('progress: ' + torrent.progress);
-
-        ws.send(JSON.stringify(torrentObject));
-
-        if (torrent.progress === 1) {
-          ws.send(JSON.stringify(Object.assign(torrentObject, {
+        torrent.on('done', () => {
+          console.log('Torrent download finished');
+          // Send status to the client
+          let torrentObject = {
+            name: parsedInfo.name,
             status: 'download:complete',
-          })));
-        }
-      });
+            hash: torrent.infoHash,
+            files: torrent.files.map(function(file) {
+              return {
+                name: file.name,
+                length: file.length,
+                path: file.path
+              };
+            }),
+            stats: {
+              downloaded: torrent.downloaded,
+              speed: torrent.downloadSpeed,
+              progress: torrent.progress
+            }
+          };
 
-      torrent.on('done', () => {
-        console.log('Torrent download finished');
-        // Send status to the client
-        let torrentObject = {
-          name: parsedInfo.name,
-          status: 'download:complete',
-          hash: torrent.infoHash,
-          files: torrent.files.map(function(file) {
-            return {
-              name: file.name,
-              length: file.length,
-              path: file.path
-              // url: encodeURI(`${req.protocol}://${req.hostname}/download?file=${file.path}`)
-            };
-          }),
-          stats: {
-            downloaded: torrent.downloaded,
-            speed: torrent.downloadSpeed,
-            progress: torrent.progress
-          }
-        };
-
-        ws.send(JSON.stringify(torrentObject));
-      });
-    });
-
+          ws.send(JSON.stringify(torrentObject));
+        });
+      }
+    );
   });
 
   ws.send('Connection established');
   console.log('New client connected');
 });
 
-
-app.use(bodyParser.urlencoded({
-    extended: true
-  }))
+app
+  .use(
+    bodyParser.urlencoded({
+      extended: true
+    })
+  )
   .use(bodyParser.json())
   .use('/', require('./routes').router);
 
@@ -137,4 +140,4 @@ if (isProduction) {
 }
 
 // Must use http server as listener rather than express app
-server.listen(PORT, () => console.log(`Listening on ${ PORT }`));
+server.listen(PORT, () => console.log(`Listening on ${PORT}`));

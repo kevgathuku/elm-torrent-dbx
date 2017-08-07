@@ -22,7 +22,6 @@ decodeTorrentFile =
         |: field "name" string
         |: field "length" int
         |: field "path" string
-        |: optionalField "url" string
 
 
 decodeTorrentStats : Decode.Decoder TorrentStats

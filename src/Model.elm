@@ -45,7 +45,6 @@ type alias TorrentFile =
     { name : String
     , length : Int
     , path : String
-    , url : Maybe String
     }
 
 
