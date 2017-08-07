@@ -9,6 +9,7 @@ type alias Model =
     , websocketURL : String
     , currentLink : String
     , torrents : Dict.Dict String Torrent
+    , backendURL : String
     }
 
 
@@ -50,9 +51,20 @@ type alias TorrentFile =
 
 type alias Flags =
     { ws_url : String
+    , backendURL : String
+    }
+
+
+initialModel : Flags -> Model
+initialModel flags =
+    { connectionStatus = Offline
+    , websocketURL = flags.ws_url
+    , currentLink = ""
+    , torrents = Dict.empty
+    , backendURL = flags.backendURL
     }
 
 
 init : Flags -> ( Model, Cmd Msg )
 init flags =
-    ( Model Offline flags.ws_url "" Dict.empty, Cmd.none )
+    ( initialModel flags, Cmd.none )
