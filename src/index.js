@@ -13,6 +13,5 @@ const app = Elm.Main.embed(node, {
     location.protocol +
     '//' +
     location.hostname +
-    ':' +
-    parseInt(process.env.PORT)
+    (process.env.PORT ? ':' + parseInt(process.env.PORT) : '')
 });
