@@ -31,15 +31,33 @@ showTorrents model =
                 ]
             ]
     else
-        div [ class "box" ]
-            (List.map
-                torrentTemplate
-                (Dict.values model.torrents)
-            )
+        div []
+            [ div [ class "box" ]
+                (List.map
+                    (torrentTemplate model)
+                    (Dict.values model.torrents)
+                )
+            ]
 
 
-torrentTemplate : Torrent -> Html Msg
-torrentTemplate torrent =
+showFile : Model -> TorrentFile -> Html Msg
+showFile model file =
+    let
+        fileDownloadURL =
+            model.backendURL ++ "/download?file=" ++ file.path
+    in
+        div [ class "coulmns" ]
+            [ p [ class "coulmn" ] [ text file.name ]
+            , div [ class "column" ]
+                [ a
+                    [ href fileDownloadURL, class "dropbox-saver" ]
+                    [ text "Save to Dropbox" ]
+                ]
+            ]
+
+
+torrentTemplate : Model -> Torrent -> Html Msg
+torrentTemplate model torrent =
     article [ class "media" ]
         [ div [ class "media-content" ]
             [ div [ class "content" ]
@@ -103,6 +121,11 @@ torrentTemplate torrent =
                             ]
                         ]
                     ]
+                , div []
+                    (List.map
+                        (showFile model)
+                        torrent.files
+                    )
                 ]
             ]
         ]
@@ -141,15 +164,15 @@ view model =
                                 ]
                             ]
                         ]
-                    , div [ class "field" ]
-                        [ p [ class "control" ]
-                            [ label [ class "checkbox" ]
-                                [ input [ type_ "checkbox" ]
-                                    []
-                                , text "Upload to Dropbox"
-                                ]
-                            ]
-                        ]
+                      -- , div [ class "field" ]
+                      --     [ p [ class "control" ]
+                      --         [ label [ class "checkbox" ]
+                      --             [ input [ type_ "checkbox" ]
+                      --                 []
+                      --             , text "Upload to Dropbox"
+                      --             ]
+                      --         ]
+                      --     ]
                     , div [ class "form-group" ]
                         [ button [ class "button is-primary is-medium", onClickNoDefault Send ]
                             [ text "Download" ]
