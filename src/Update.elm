@@ -63,7 +63,7 @@ torrentDecoder =
         |: field "name" string
         |: field "hash" string
         |: (field "status" string |> Decode.andThen decodeStatus)
-        |: optionalField "stats" (Decode.field "stats" decodeTorrentStats)
+        |: optionalField "stats" decodeTorrentStats
         |: field "files" (Decode.list decodeTorrentFile)
 
 
