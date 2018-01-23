@@ -45,12 +45,12 @@ const options = {
 };
 
 app.ports.sendToDropbox.subscribe(function(url) {
-  let encodedURL = encodeURI(url);
+  var encodedURL = encodeURI(url);
   saveToDropbox(encodedURL);
 });
 
-let saveToDropbox = function(url) {
-  let filename = decodeURIComponent(url.substring(url.lastIndexOf("/") + 1));
+var saveToDropbox = function(url) {
+  var filename = decodeURIComponent(url.substring(url.lastIndexOf("/") + 1));
   console.log("Encoded URL:", url);
   console.log("Filename:", filename);
   Dropbox.save(url, filename, options);
