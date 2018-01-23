@@ -1,7 +1,7 @@
 {
   "name": "torrent-elm",
   "version": "1.0.0",
-  "description": "Describe torrent-elm here",
+  "description": "Download torrents remotely to your Dropbox",
   "private": true,
   "scripts": {
     "build": "node scripts/build.js",
@@ -40,6 +40,7 @@
     "nodemon": "^1.11.0",
     "postcss-loader": "1.3.3",
     "react-dev-utils": "0.5.2",
+    "rimraf": "^2.6.1",
     "style-loader": "^0.16.1",
     "url-loader": "0.5.8",
     "webpack": "2.3.3",
@@ -47,9 +48,7 @@
     "webtorrent": "^0.98.19",
     "ws": "^2.3.1"
   },
-  "devDependencies": {
-    "rimraf": "^2.6.1"
-  },
+  "devDependencies": {},
   "author": "",
   "license": "MIT",
   "repository": ""
