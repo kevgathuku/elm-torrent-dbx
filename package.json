@@ -12,6 +12,9 @@
     "start:client": "node scripts/start.js",
     "postinstall": "if [ -n \"$npm_config_production\" ]; then elm-package install -y && npm run build; fi"
   },
+  "engines": {
+    "node": "8.9.x"
+  },
   "directories": {
     "test": "tests"
   },
