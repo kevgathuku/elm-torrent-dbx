@@ -50,7 +50,7 @@ showFile model file =
             [ p [ class "coulmn" ] [ text file.name ]
             , div [ class "column" ]
                 [ a
-                    [ href fileDownloadURL, class "dropbox-saver dropbox-dropin-btn dropbox-dropin-default" ]
+                    [ href fileDownloadURL, class "dropbox-saver dropbox-dropin-btn dropbox-dropin-default", onClickNoDefault (SendToDropbox fileDownloadURL) ]
                     [ span [ class "dropin-btn-status" ]
                         []
                     , text "Save to Dropbox"

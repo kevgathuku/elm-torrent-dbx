@@ -5,3 +5,4 @@ type Msg
     = Input String
     | Send
     | NewMessage String
+    | SendToDropbox String

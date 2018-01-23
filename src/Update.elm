@@ -1,4 +1,4 @@
-module Update exposing (update, subscriptions)
+port module Update exposing (update, subscriptions)
 
 import Dict
 import Json.Decode as Decode exposing (..)
@@ -9,6 +9,9 @@ import Messages exposing (Msg(..))
 
 
 -- SUBSCRIPTIONS
+
+
+port sendToDropbox : String -> Cmd msg
 
 
 subscriptions : Model -> Sub Msg
@@ -115,6 +118,13 @@ update msg model =
                     { model | currentLink = "" }
             in
                 ( updatedModel, WebSocket.send model.websocketURL model.currentLink )
+
+        SendToDropbox url ->
+            let
+                _ =
+                    Debug.log "Sending this url to Dropbox: " url
+            in
+                ( model, sendToDropbox url )
 
         NewMessage str ->
             case str of
