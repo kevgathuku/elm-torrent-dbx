@@ -46,8 +46,8 @@ showFile model file =
         fileDownloadURL =
             model.backendURL ++ "/download?file=" ++ file.path
     in
-        div [ class "coulmns" ]
-            [ p [ class "coulmn" ] [ text file.name ]
+        div [ class "columns" ]
+            [ p [ class "column" ] [ text file.name ]
             , div [ class "column" ]
                 [ a
                     [ href fileDownloadURL, class "dropbox-saver dropbox-dropin-btn dropbox-dropin-default" ]
@@ -104,13 +104,6 @@ torrentTemplate model torrent =
                                 [ text "Files"
                                 , span [ class "icon" ]
                                     [ i [ class "fa fa-file" ]
-                                        []
-                                    ]
-                                ]
-                            , a [ class "column" ]
-                                [ text "Start"
-                                , span [ class "icon" ]
-                                    [ i [ class "fa fa-cloud-download" ]
                                         []
                                     ]
                                 ]
