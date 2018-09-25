@@ -5,8 +5,8 @@ import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (onInput, onWithOptions)
 import Json.Decode as Decode exposing (..)
-import Model exposing (..)
 import Messages exposing (Msg(..))
+import Model exposing (..)
 
 
 onClickNoDefault : msg -> Attribute msg
@@ -17,7 +17,7 @@ onClickNoDefault message =
             , preventDefault = True
             }
     in
-        onWithOptions "click" config (Decode.succeed message)
+    onWithOptions "click" config (Decode.succeed message)
 
 
 showTorrents : Model -> Html Msg
@@ -30,6 +30,7 @@ showTorrents model =
                     [ text "Add Torrents Above" ]
                 ]
             ]
+
     else
         div []
             [ div [ class "box" ]
@@ -46,17 +47,17 @@ showFile model file =
         fileDownloadURL =
             model.backendURL ++ "/download?file=" ++ file.path
     in
-        div [ class "columns" ]
-            [ p [ class "column" ] [ text file.name ]
-            , div [ class "column" ]
-                [ a
-                    [ href fileDownloadURL, class "dropbox-saver dropbox-dropin-btn dropbox-dropin-default" ]
-                    [ span [ class "dropin-btn-status" ]
-                        []
-                    , text "Save to Dropbox"
-                    ]
+    div [ class "columns" ]
+        [ p [ class "column" ] [ text file.name ]
+        , div [ class "column" ]
+            [ a
+                [ href fileDownloadURL, class "dropbox-saver dropbox-dropin-btn dropbox-dropin-default" ]
+                [ span [ class "dropin-btn-status" ]
+                    []
+                , text "Save to Dropbox"
                 ]
             ]
+        ]
 
 
 torrentTemplate : Model -> Torrent -> Html Msg
@@ -135,10 +136,12 @@ view model =
                 [ p
                     [ class
                         ("title is-2 "
-                            ++ if model.connectionStatus == Model.Online then
-                                "lit"
-                               else
-                                "meh"
+                            ++ (if model.connectionStatus == Model.Online then
+                                    "lit"
+
+                                else
+                                    "meh"
+                               )
                         )
                     ]
                     [ text "Torrent to Dropbox" ]

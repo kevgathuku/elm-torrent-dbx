@@ -1,4 +1,4 @@
-module Model exposing (..)
+module Model exposing (ConnectionStatus(..), DownloadStatus(..), Flags, Model, Torrent, TorrentFile, TorrentStats, init, initialModel)
 
 import Dict
 import Messages exposing (Msg)
