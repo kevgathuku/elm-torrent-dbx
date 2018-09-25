@@ -1,7 +1,7 @@
 {
   "name": "torrent-elm",
   "version": "1.0.0",
-  "description": "Describe torrent-elm here",
+  "description": "Download torrents remotely to your Dropbox",
   "private": true,
   "scripts": {
     "build": "node scripts/build.js",
@@ -25,7 +25,7 @@
     "css-loader": "^0.28.4",
     "dotenv": "^4.0.0",
     "dropbox": "^2.5.7",
-    "elm": "^0.18.0",
+    "elm": "0.18.0",
     "elm-hot-loader": "0.5.4",
     "elm-test": "0.18.2",
     "elm-webpack-loader": "^4.3.0",
