@@ -218,8 +218,8 @@ async-each@^1.0.0:
   resolved "https://registry.yarnpkg.com/async-each/-/async-each-1.0.1.tgz#19d386a1d9edc6e7c1c85d388aedbcc56d33602d"
 
 async-limiter@~1.0.0:
-  version "1.0.0"
-  resolved "https://registry.yarnpkg.com/async-limiter/-/async-limiter-1.0.0.tgz#78faed8c3d074ab81f22b4e985d79e8738f720f8"
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/async-limiter/-/async-limiter-1.0.1.tgz#dd379e94f0db8310b08291f9d64c3209766617fd"
 
 async@^1.5.2:
   version "1.5.2"
@@ -1407,7 +1407,7 @@ elm-webpack-loader@^4.3.0:
     node-elm-compiler "^4.2.1"
     yargs "^6.5.0"
 
-elm@^0.18.0:
+elm@0.18.0, elm@^0.18.0:
   version "0.18.0"
   resolved "https://registry.yarnpkg.com/elm/-/elm-0.18.0.tgz#919b8309cd939dfe2ff9d252d961b6c89509b970"
   dependencies:
@@ -4513,13 +4513,13 @@ rusha@^0.8.1:
   version "0.8.12"
   resolved "https://registry.yarnpkg.com/rusha/-/rusha-0.8.12.tgz#5d838ce1fce8b145674ee771eaad5bcb2575e64b"
 
-safe-buffer@5.1.1, safe-buffer@^5.0.0, safe-buffer@^5.0.1, safe-buffer@^5.1.0, safe-buffer@^5.1.1, safe-buffer@~5.1.0, safe-buffer@~5.1.1:
+safe-buffer@5.1.1, safe-buffer@^5.1.0, safe-buffer@^5.1.1, safe-buffer@~5.1.1:
   version "5.1.1"
   resolved "https://registry.yarnpkg.com/safe-buffer/-/safe-buffer-5.1.1.tgz#893312af69b2123def71f57889001671eeb2c853"
 
-safe-buffer@~5.0.1:
-  version "5.0.1"
-  resolved "https://registry.yarnpkg.com/safe-buffer/-/safe-buffer-5.0.1.tgz#d263ca54696cd8a306b5ca6551e92de57918fbe7"
+safe-buffer@^5.0.0, safe-buffer@^5.0.1, safe-buffer@~5.1.0:
+  version "5.1.2"
+  resolved "https://registry.yarnpkg.com/safe-buffer/-/safe-buffer-5.1.2.tgz#991ec69d296e0313747d59bdfd2b745c35f8828d"
 
 sax@~1.2.1:
   version "1.2.4"
@@ -5708,16 +5708,9 @@ write-file-atomic@^2.0.0:
     imurmurhash "^0.1.4"
     signal-exit "^3.0.2"
 
-ws@^2.3.1:
-  version "2.3.1"
-  resolved "https://registry.yarnpkg.com/ws/-/ws-2.3.1.tgz#6b94b3e447cb6a363f785eaf94af6359e8e81c80"
-  dependencies:
-    safe-buffer "~5.0.1"
-    ultron "~1.1.0"
-
 ws@^3.3.1:
-  version "3.3.3"
-  resolved "https://registry.yarnpkg.com/ws/-/ws-3.3.3.tgz#f1cf84fe2d5e901ebce94efaece785f187a228f2"
+  version "3.3.1"
+  resolved "https://registry.yarnpkg.com/ws/-/ws-3.3.1.tgz#d97e34dee06a1190c61ac1e95f43cb60b78cf939"
   dependencies:
     async-limiter "~1.0.0"
     safe-buffer "~5.1.0"

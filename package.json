@@ -25,7 +25,7 @@
     "css-loader": "^0.28.4",
     "dotenv": "^4.0.0",
     "dropbox": "^2.5.7",
-    "elm": "^0.18.0",
+    "elm": "0.18.0",
     "elm-hot-loader": "0.5.4",
     "elm-test": "0.18.2",
     "elm-webpack-loader": "^4.3.0",
@@ -46,7 +46,7 @@
     "webpack": "2.3.3",
     "webpack-dev-server": "2.4.2",
     "webtorrent": "^0.98.19",
-    "ws": "^2.3.1"
+    "ws": "^3.3.1"
   },
   "devDependencies": {},
   "author": "",
