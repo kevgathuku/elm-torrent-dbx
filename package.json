@@ -45,7 +45,7 @@
     "webpack": "2.3.3",
     "webpack-dev-server": "2.4.2",
     "webtorrent": "^0.98.19",
-    "ws": "^2.3.1"
+    "ws": "^3.3.1"
   },
   "devDependencies": {
     "rimraf": "^2.6.1"
