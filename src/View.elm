@@ -170,7 +170,7 @@ view model =
         , div [ class "columns" ]
             [ div [ class "column is-8 is-offset-2" ]
                 [ p [ class "title is-3" ]
-                    [ text "Torrents" ]
+                    [ text "Downloads" ]
                 , showTorrents model
                 ]
             ]

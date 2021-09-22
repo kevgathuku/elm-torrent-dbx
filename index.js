@@ -82,7 +82,7 @@ wss.on('connection', function connection(ws) {
           if (torrent.progress === 1) {
             ws.send(
               JSON.stringify(
-                Object.assign(torrentObject, {
+                Object.assign({}, torrentObject, {
                   status: 'download:complete'
                 })
               )
@@ -131,7 +131,7 @@ app
   .use('/', require('./routes'));
 
 // Render the client routes if any other URL is passed in
-// Do this only in production. The local client server is used otherwise
+// Do this only in production. The local client server is used during development
 if (isProduction) {
   app.use(express.static(path.resolve(__dirname, 'dist')));
   app.get('*', (req, res) => {
