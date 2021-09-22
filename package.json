@@ -24,7 +24,7 @@
     "express": "^4.15.4",
     "http-proxy-middleware": "^0.17.3",
     "magnet-uri": "^5.1.5",
-    "minimist": "1.2.0",
+    "minimist": "1.2.3",
     "nodemon": "^1.11.0",
     "rimraf": "^2.6.1",
     "webtorrent": "^0.98.19",
