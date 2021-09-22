@@ -1,11 +1,12 @@
-module Update exposing (update, subscriptions)
+module Update exposing (subscriptions, update)
 
 import Dict
 import Json.Decode as Decode exposing (..)
 import Json.Decode.Extra exposing ((|:), optionalField)
-import WebSocket
-import Model exposing (..)
 import Messages exposing (Msg(..))
+import Model exposing (..)
+import WebSocket
+
 
 
 -- SUBSCRIPTIONS
@@ -89,14 +90,14 @@ decodeTorrent payload =
                 _ =
                     Debug.log "Successfuly parsed torrent payload " torrent
             in
-                torrent
+            torrent
 
         Err error ->
             let
                 _ =
                     Debug.log "UnSuccessful parsing of torrent " error
             in
-                nullTorrent
+            nullTorrent
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -107,14 +108,14 @@ update msg model =
                 updatedModel =
                     { model | currentLink = newInput }
             in
-                ( updatedModel, Cmd.none )
+            ( updatedModel, Cmd.none )
 
         Send ->
             let
                 updatedModel =
                     { model | currentLink = "" }
             in
-                ( updatedModel, WebSocket.send model.websocketURL model.currentLink )
+            ( updatedModel, WebSocket.send model.websocketURL model.currentLink )
 
         NewMessage str ->
             case str of
@@ -123,7 +124,7 @@ update msg model =
                         updatedModel =
                             { model | connectionStatus = Online }
                     in
-                        ( updatedModel, Cmd.none )
+                    ( updatedModel, Cmd.none )
 
                 _ ->
                     let
@@ -139,30 +140,30 @@ update msg model =
                         _ =
                             Debug.log "Status " status
                     in
-                        case status of
-                            Ok "download:start" ->
-                                let
-                                    updatedModel =
-                                        { model | torrents = Dict.insert hash decodedTorrent model.torrents }
-                                in
-                                    ( updatedModel, Cmd.none )
+                    case status of
+                        Ok "download:start" ->
+                            let
+                                updatedModel =
+                                    { model | torrents = Dict.insert hash decodedTorrent model.torrents }
+                            in
+                            ( updatedModel, Cmd.none )
 
-                            Ok "download:progress" ->
-                                let
-                                    updatedModel =
-                                        { model | torrents = Dict.update hash (\_ -> Just decodedTorrent) model.torrents }
-                                in
-                                    ( updatedModel, Cmd.none )
+                        Ok "download:progress" ->
+                            let
+                                updatedModel =
+                                    { model | torrents = Dict.update hash (\_ -> Just decodedTorrent) model.torrents }
+                            in
+                            ( updatedModel, Cmd.none )
 
-                            Ok "download:complete" ->
-                                let
-                                    updatedModel =
-                                        { model | torrents = Dict.update hash (\_ -> Just decodedTorrent) model.torrents }
-                                in
-                                    ( updatedModel, Cmd.none )
+                        Ok "download:complete" ->
+                            let
+                                updatedModel =
+                                    { model | torrents = Dict.update hash (\_ -> Just decodedTorrent) model.torrents }
+                            in
+                            ( updatedModel, Cmd.none )
 
-                            Ok _ ->
-                                ( model, Cmd.none )
+                        Ok _ ->
+                            ( model, Cmd.none )
 
-                            Err _ ->
-                                ( model, Cmd.none )
+                        Err _ ->
+                            ( model, Cmd.none )
