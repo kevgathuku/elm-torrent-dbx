@@ -137,6 +137,7 @@ view model =
                                     "meh"
                                )
                         )
+                    , id "title"
                     ]
                     [ text "Torrent to Dropbox" ]
                 , p [ class "subtitle is-5" ]
