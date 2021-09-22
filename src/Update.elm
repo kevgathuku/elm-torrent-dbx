@@ -83,12 +83,12 @@ torrentDecoder =
 
 statusDecoder : Decode.Decoder String
 statusDecoder =
-    Decode.field "status" Decode.string
+    Decode.field "status" string
 
 
 hashDecoder : Decode.Decoder String
 hashDecoder =
-    Decode.field "hash" Decode.string
+    Decode.field "hash" string
 
 
 nullTorrent : Torrent
@@ -100,17 +100,9 @@ decodeTorrent : String -> Torrent
 decodeTorrent payload =
     case decodeString torrentDecoder payload of
         Ok torrent ->
-            let
-                _ =
-                    Debug.log "Successfuly parsed torrent payload " torrent
-            in
             torrent
 
-        Err error ->
-            let
-                _ =
-                    Debug.log "UnSuccessful parsing of torrent " error
-            in
+        Err _ ->
             nullTorrent
 
 
@@ -146,38 +138,40 @@ update msg model =
                             Decode.decodeString statusDecoder str
 
                         hash =
-                            Decode.decodeString hashDecoder str |> Debug.toString
+                            Decode.decodeString hashDecoder str
 
                         decodedTorrent =
                             decodeTorrent str
-
-                        _ =
-                            Debug.log "Status " status
                     in
-                    case status of
-                        Ok "download:start" ->
-                            let
-                                updatedModel =
-                                    { model | torrents = Dict.insert hash decodedTorrent model.torrents }
-                            in
-                            ( updatedModel, Cmd.none )
-
-                        Ok "download:progress" ->
-                            let
-                                updatedModel =
-                                    { model | torrents = Dict.update hash (\_ -> Just decodedTorrent) model.torrents }
-                            in
-                            ( updatedModel, Cmd.none )
-
-                        Ok "download:complete" ->
-                            let
-                                updatedModel =
-                                    { model | torrents = Dict.update hash (\_ -> Just decodedTorrent) model.torrents }
-                            in
-                            ( updatedModel, Cmd.none )
-
-                        Ok _ ->
-                            ( model, Cmd.none )
-
+                    case hash of
                         Err _ ->
                             ( model, Cmd.none )
+
+                        Ok hashString ->
+                            case status of
+                                Ok "download:start" ->
+                                    let
+                                        updatedModel =
+                                            { model | torrents = Dict.insert hashString decodedTorrent model.torrents }
+                                    in
+                                    ( updatedModel, Cmd.none )
+
+                                Ok "download:progress" ->
+                                    let
+                                        updatedModel =
+                                            { model | torrents = Dict.update hashString (\_ -> Just decodedTorrent) model.torrents }
+                                    in
+                                    ( updatedModel, Cmd.none )
+
+                                Ok "download:complete" ->
+                                    let
+                                        updatedModel =
+                                            { model | torrents = Dict.update hashString (\_ -> Just decodedTorrent) model.torrents }
+                                    in
+                                    ( updatedModel, Cmd.none )
+
+                                Ok _ ->
+                                    ( model, Cmd.none )
+
+                                Err _ ->
+                                    ( model, Cmd.none )
