@@ -1,9 +1,10 @@
 require('./index.css');
-const Elm = require('./Main.elm');
-const node = document.querySelector('#app');
+
+import { Elm } from "./Main.elm";
 
 const prefix = location.protocol === 'https:' ? 'wss://' : 'ws://';
 
+const node = document.querySelector('#app');
 const app = Elm.Main.embed(node, {
   ws_url:
     prefix +
