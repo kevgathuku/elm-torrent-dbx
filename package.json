@@ -22,9 +22,9 @@
     "elm-test": "^0.19.1-revision7",
     "express": "^4.15.4",
     "magnet-uri": "^5.1.5",
-    "nodemon": "^1.11.0",
+    "nodemon": "^2.0.12",
     "rimraf": "^2.6.1",
-    "webtorrent": "^0.98.19",
+    "webtorrent": "^0.107.6",
     "ws": "^5.2.3"
   },
   "author": "",
