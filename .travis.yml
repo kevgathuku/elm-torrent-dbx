@@ -1,25 +1,16 @@
-sudo: false
+elm:
+  - "latest-0.19.1"
 
-cache:
-  directories:
-    - tests/elm-stuff/build-artifacts
+elm-format: "0.8.2"
 
 env:
   matrix:
-    - ELM_VERSION=0.18.0 TARGET_NODE_VERSION=node
+    - ELM_VERSION=0.19.0 TARGET_NODE_VERSION=node
 
 install:
-  - nvm install $TARGET_NODE_VERSION
-  - nvm use $TARGET_NODE_VERSION
   - node --version
   - npm --version
-  - npm install -g elm-use elm-test elm-format
-  - elm-use $ELM_VERSION
-  - npm install
-  - travis_retry elm-package install --yes
-  - cd tests
-  - travis_retry elm-package install --yes
-  - cd ..
+  - npm install -g elm-test elm-format
 
 script:
   - elm-format --validate src tests
