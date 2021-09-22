@@ -34,12 +34,6 @@ Install the JavaScript dependencies:
 yarn
 ```
 
-Install the Elm dependencies
-
-```sh
-yarn run elm-package install
-```
-
 Start the server:
 
 ```sh
