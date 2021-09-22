@@ -9,8 +9,6 @@ This is how it works in a nutshell:
 2. `torrent-dbx` (this app) downloads the torrent through [webtorrent](https://github.com/webtorrent/webtorrent)
 3. Once the download is complete, you can download the file or send it to your Dropbox
 
-Give it a try: [torrent-dbx](https://torrent-dbx.herokuapp.com/)
-
 ##  Local Setup
 
 #### Requirements
