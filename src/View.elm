@@ -3,7 +3,7 @@ module View exposing (view)
 import Dict
 import Html exposing (..)
 import Html.Attributes exposing (..)
-import Html.Events exposing (onInput, onWithOptions)
+import Html.Events exposing (custom, onInput)
 import Json.Decode as Decode exposing (..)
 import Messages exposing (Msg(..))
 import Model exposing (..)
@@ -11,13 +11,7 @@ import Model exposing (..)
 
 onClickNoDefault : msg -> Attribute msg
 onClickNoDefault message =
-    let
-        config =
-            { stopPropagation = True
-            , preventDefault = True
-            }
-    in
-    onWithOptions "click" config (Decode.succeed message)
+    custom "click" (Decode.succeed { message = message, preventDefault = True, stopPropagation = True })
 
 
 showTorrents : Model -> Html Msg
@@ -85,7 +79,7 @@ torrentTemplate model torrent =
                                             "0"
 
                                         Just { progress } ->
-                                            toString (progress * 100)
+                                            String.fromFloat (progress * 100)
                                     )
                                 ]
                                 [ text
@@ -94,7 +88,7 @@ torrentTemplate model torrent =
                                             "0 %"
 
                                         Just { progress } ->
-                                            toString (progress * 100) ++ " %"
+                                            String.fromFloat (progress * 100) ++ " %"
                                     )
                                 ]
                             ]
