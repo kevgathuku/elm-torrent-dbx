@@ -3,21 +3,15 @@ module View exposing (view)
 import Dict
 import Html exposing (..)
 import Html.Attributes exposing (..)
-import Html.Events exposing (onInput, onWithOptions)
+import Html.Events exposing (custom, onInput)
 import Json.Decode as Decode exposing (..)
-import Model exposing (..)
 import Messages exposing (Msg(..))
+import Model exposing (..)
 
 
 onClickNoDefault : msg -> Attribute msg
 onClickNoDefault message =
-    let
-        config =
-            { stopPropagation = True
-            , preventDefault = True
-            }
-    in
-        onWithOptions "click" config (Decode.succeed message)
+    custom "click" (Decode.succeed { message = message, preventDefault = True, stopPropagation = True })
 
 
 showTorrents : Model -> Html Msg
@@ -30,6 +24,7 @@ showTorrents model =
                     [ text "Add Torrents Above" ]
                 ]
             ]
+
     else
         div []
             [ div [ class "box" ]
@@ -46,17 +41,17 @@ showFile model file =
         fileDownloadURL =
             model.backendURL ++ "/download?file=" ++ file.path
     in
-        div [ class "columns" ]
-            [ p [ class "column" ] [ text file.name ]
-            , div [ class "column" ]
-                [ a
-                    [ href fileDownloadURL, class "dropbox-saver dropbox-dropin-btn dropbox-dropin-default" ]
-                    [ span [ class "dropin-btn-status" ]
-                        []
-                    , text "Save to Dropbox"
-                    ]
+    div [ class "columns" ]
+        [ p [ class "column" ] [ text file.name ]
+        , div [ class "column" ]
+            [ a
+                [ href fileDownloadURL, class "dropbox-saver dropbox-dropin-btn dropbox-dropin-default" ]
+                [ span [ class "dropin-btn-status" ]
+                    []
+                , text "Save to Dropbox"
                 ]
             ]
+        ]
 
 
 torrentTemplate : Model -> Torrent -> Html Msg
@@ -84,7 +79,7 @@ torrentTemplate model torrent =
                                             "0"
 
                                         Just { progress } ->
-                                            toString (progress * 100)
+                                            String.fromFloat (progress * 100)
                                     )
                                 ]
                                 [ text
@@ -93,7 +88,7 @@ torrentTemplate model torrent =
                                             "0 %"
 
                                         Just { progress } ->
-                                            toString (progress * 100) ++ " %"
+                                            String.fromFloat (progress * 100) ++ " %"
                                     )
                                 ]
                             ]
@@ -135,11 +130,14 @@ view model =
                 [ p
                     [ class
                         ("title is-2 "
-                            ++ if model.connectionStatus == Model.Online then
-                                "lit"
-                               else
-                                "meh"
+                            ++ (if model.connectionStatus == Model.Online then
+                                    "lit"
+
+                                else
+                                    "meh"
+                               )
                         )
+                    , id "title"
                     ]
                     [ text "Torrent to Dropbox" ]
                 , p [ class "subtitle is-5" ]

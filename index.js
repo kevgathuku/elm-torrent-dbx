@@ -25,6 +25,7 @@ wss.on('connection', function connection(ws) {
   });
 
   ws.on('message', function incoming(message) {
+    console.log("Backend Socket received message:", message);
     const parsedInfo = magnet.decode(message);
     console.log(`Downloading ${parsedInfo.name}`);
 
