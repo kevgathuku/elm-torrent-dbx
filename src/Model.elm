@@ -6,7 +6,6 @@ import Messages exposing (Msg)
 
 type alias Model =
     { connectionStatus : ConnectionStatus
-    , websocketURL : String
     , currentLink : String
     , torrents : Dict.Dict String Torrent
     , backendURL : String
@@ -50,15 +49,13 @@ type alias TorrentFile =
 
 
 type alias Flags =
-    { ws_url : String
-    , backendURL : String
+    { backendURL : String
     }
 
 
 initialModel : Flags -> Model
 initialModel flags =
     { connectionStatus = Offline
-    , websocketURL = flags.ws_url
     , currentLink = ""
     , torrents = Dict.empty
     , backendURL = flags.backendURL

@@ -1,5 +1,6 @@
 module Main exposing (..)
 
+import Browser
 import Html exposing (Html)
 import Model
 import Update
@@ -7,7 +8,7 @@ import View
 
 
 main =
-    Html.programWithFlags
+    Browser.element
         { init = Model.init
         , view = View.view
         , update = Update.update

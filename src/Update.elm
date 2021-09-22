@@ -1,36 +1,50 @@
-module Update exposing (subscriptions, update)
+port module Update exposing (subscriptions, update)
 
 import Dict
 import Json.Decode as Decode exposing (..)
-import Json.Decode.Extra exposing ((|:), optionalField)
+import Json.Decode.Extra exposing (optionalField)
 import Messages exposing (Msg(..))
 import Model exposing (..)
-import WebSocket
+
+
+
+-- import WebSocket
+-- PORTS
+
+
+port sendMessage : String -> Cmd msg
+
+
+port messageReceiver : (String -> msg) -> Sub msg
 
 
 
 -- SUBSCRIPTIONS
+-- Subscribe to the `messageReceiver` port to hear about messages coming in
+-- from JS. Check out the index.html file to see how this is hooked up to a
+-- WebSocket.
+--
 
 
 subscriptions : Model -> Sub Msg
-subscriptions model =
-    WebSocket.listen model.websocketURL NewMessage
+subscriptions _ =
+    messageReceiver NewMessage
 
 
 decodeTorrentFile : Decode.Decoder TorrentFile
 decodeTorrentFile =
-    succeed TorrentFile
-        |: field "name" string
-        |: field "length" int
-        |: field "path" string
+    map3 TorrentFile
+        (field "name" string)
+        (field "length" int)
+        (field "path" string)
 
 
 decodeTorrentStats : Decode.Decoder TorrentStats
 decodeTorrentStats =
-    succeed TorrentStats
-        |: field "downloaded" int
-        |: field "speed" float
-        |: field "progress" float
+    map3 TorrentStats
+        (field "downloaded" int)
+        (field "speed" float)
+        (field "progress" float)
 
 
 stringToDownloadStatus : String -> DownloadStatus
@@ -59,12 +73,12 @@ decodeStatus status =
 
 torrentDecoder : Decode.Decoder Torrent
 torrentDecoder =
-    succeed Torrent
-        |: field "name" string
-        |: field "hash" string
-        |: (field "status" string |> Decode.andThen decodeStatus)
-        |: optionalField "stats" decodeTorrentStats
-        |: field "files" (Decode.list decodeTorrentFile)
+    map5 Torrent
+        (field "name" string)
+        (field "hash" string)
+        (field "status" string |> Decode.andThen decodeStatus)
+        (optionalField "stats" decodeTorrentStats)
+        (field "files" (Decode.list decodeTorrentFile))
 
 
 statusDecoder : Decode.Decoder String
@@ -115,7 +129,7 @@ update msg model =
                 updatedModel =
                     { model | currentLink = "" }
             in
-            ( updatedModel, WebSocket.send model.websocketURL model.currentLink )
+            ( updatedModel, sendMessage model.currentLink )
 
         NewMessage str ->
             case str of
@@ -132,7 +146,7 @@ update msg model =
                             Decode.decodeString statusDecoder str
 
                         hash =
-                            Decode.decodeString hashDecoder str |> toString
+                            Decode.decodeString hashDecoder str |> Debug.toString
 
                         decodedTorrent =
                             decodeTorrent str
